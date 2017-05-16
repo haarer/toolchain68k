@@ -5,9 +5,9 @@ The script is for MSYS2
 
 Instructions: *all commands are to be typed into the msys shell*
 
-1. Install MSYS2 Base System and needed packages
+# Install MSYS2 Base System and needed packages
   * download the MSYS2 Installer from the [MSYS Home Page](http://www.msys2.org/), use the 64 Bit Version
-  * execute installer and chose the installation path
+  * execute installer and chose the installation path as follows
     * best on a SSD
     * will need approx 4 GB space
     * exclude it from the virus scanner
@@ -21,12 +21,19 @@ Instructions: *all commands are to be typed into the msys shell*
     * open MSYS Shell again(start menu, use 64bit version)
     * ```pacman -Su```
     * ```pacman -S git msys2-runtime tar flex bison diffutils texinfo mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git```
-1. clone the git repo (use the msys shell)
-  * ```git clone https://github.com/haarer/toolchain68k.git```
-1. start the build script
-  * ```sh   buildtoolchain.sh```
-1. add the path
-  * ```export PATH=$PATH:/opt/m68k/bin```
-1. compile one of the examples
-  * ```cd m68k-example2 ;  make ```
+# clone the git repo
+```
+git clone https://github.com/haarer/toolchain68k.git
+```
+# start the build script
+```
+sh   buildtoolchain.sh
+```
+# add the path
+```export PATH=$PATH:/opt/m68k/bin```
+# compile one of the examples
+```
+cd m68k-example2
+make 
+```
 
