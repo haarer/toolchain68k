@@ -20,7 +20,7 @@ Instructions: *all commands are to be typed into the msys shell*
     * ok the questions, close window when ready
     * open MSYS Shell again(start menu, use 64bit version)
     * ```pacman -Su```
-    * ```pacman -S git msys2-runtime tar flex bison diffutils texinfo mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git```
+    * ```pacman -S --needed git msys2-runtime make tar flex bison diffutils texinfo mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git```
 # clone the git repo
 ```
 git clone https://github.com/haarer/toolchain68k.git
@@ -33,7 +33,7 @@ sh   buildtoolchain.sh
 ```export PATH=$PATH:/opt/m68k/bin```
 # compile one of the examples
 ```
-cd m68k-example2
+cd examples/m68k-example2
 make 
 ```
 
