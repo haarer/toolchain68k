@@ -15,7 +15,7 @@
 #   http://www.msys2.org/
 
 # MSYS2 package requirements
-# flex bison diffutils texinfo
+# flex bison diffutils texinfo make
 # mingw-w64-x86_64-gcc  
 # mingw-w64-x86_64-libmangle-git 
 # mingw-w64-x86_64-make
