@@ -277,24 +277,6 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 
 
     #---------------------------------------------------------------------------------
-    #build libusb
-
-    log_msg ">>>> build libusb"
-    LIBUSBVER="libusb-win32-src-1.2.6.0"
-
-    prepare_source https://downloads.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.6.0 $LIBUSBVER zip
-
-    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
-
-    cd ..
-    make
-    
-
-    cd $M68KBUILD
-
-
-
-    #---------------------------------------------------------------------------------
     #build avrdude.
     #   On windows builds, avrdude needs the libusb or libftdi for certain programmers
     #   but not for flashing an arduino using the usb cable using the avrdude wiring configuration.
