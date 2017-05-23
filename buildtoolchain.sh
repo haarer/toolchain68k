@@ -29,8 +29,8 @@
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=5
-TARGETARCHITECTURE=avr
-#TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=m68k-elf
 
 export PATH=/opt/m68k/bin:$PATH
 
@@ -110,7 +110,7 @@ function prepare_source () {
 # *  is the detection safe ?
 #   
 function install_package () {
-    if [ $OS = "Debian" ] [ $OS = "Fedora" ]; then
+    if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then
         sudo sh -c "export PATH=$PATH:/opt/m68k/bin; make install"
     else
         make install
@@ -155,6 +155,7 @@ if [ "$OS" = "MINGW64_NT-10.0" ]; then
 	echo "ouuch.. on windows"
 else
 	echo "eeek.. not on windows, doing sudo keepalive tricks"
+    EXECUTEABLESUFFIX=""
 	sudo -v
 	while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 fi
