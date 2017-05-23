@@ -82,7 +82,7 @@ export PATH=$PATH:/opt/m68k/bin
 
 ### compile one of the 68k toolchain examples
 see the linker scripts called for the make file.
-One example uses toolchain provided startup files and linkerscript (m68k-example), the other one uses custom linker scripts and own startup files (m68k-example2)
+One example uses toolchain provided startup files and linkerscript (m68k-example2), the other one uses custom linker scripts and own startup files (m68k-example)
 
 ```
 cd examples/m68k-example
