@@ -61,9 +61,20 @@ sh   buildtoolchain.sh
 #Testing the Toolchain
 ## add the path
 ```export PATH=$PATH:/opt/m68k/bin```
-## compile one of the examples
+
+### compile one of the 68k toolchain examples
+see the linker scripts called for the make file.
+One example uses toolchain provided startup files and linkerscript (m68k-example) the other one uses custom linker scripts and own startup files (m68k-example2
+
 ```
-cd examples/m68k-example2
+cd examples/m68k-example
 make 
 ```
 
+### compile the avr toolchain examples
+this example assumes an arduino mega connected to usb (com3, see makefile) and is a simple led blink example
+```
+cd examples/avr-example
+make 
+make flash
+```
