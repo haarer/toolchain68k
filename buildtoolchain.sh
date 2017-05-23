@@ -86,6 +86,8 @@ function prepare_source () {
             tar -xzf $SOURCENAME.$ARCHTYPE 
         elif [ "$ARCHTYPE" = "tar.xz" ]; then
             tar -xJf $SOURCENAME.$ARCHTYPE 
+        elif [ "$ARCHTYPE" = "zip" ]; then
+            unzip $SOURCENAME.$ARCHTYPE 
         else
             log_msg " !!!!! unknown archive format"
             exit 1
@@ -246,6 +248,7 @@ conf_compile_source gdb "/opt/m68k/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX
 cd $M68KBUILD
 
 
+
 # musasim bauen
 # https://code.google.com/p/musasim/
 #apt-get install libsdl2-dev
@@ -268,3 +271,44 @@ cd $M68KBUILD
 #cd musasim
 ## vorher in verzeichnis ui das makefile fixen, es fehlt `pkg-config --cflags SDL2_ttf` bei den cflags
 #make 
+
+
+if [ "$TARGETARCHITECTURE" = "avr" ]; then
+
+
+    #---------------------------------------------------------------------------------
+    #build libusb
+
+    log_msg ">>>> build libusb"
+    LIBUSBVER="libusb-win32-src-1.2.6.0"
+
+    prepare_source https://downloads.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.6.0 $LIBUSBVER zip
+
+    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
+
+    cd ..
+    make
+    
+
+    cd $M68KBUILD
+
+
+
+    #---------------------------------------------------------------------------------
+    #build avrdude.
+    #   On windows builds, avrdude needs the libusb or libftdi for certain programmers
+    #   but not for flashing an arduino using the usb cable using the avrdude wiring configuration.
+    #   see make file of avr example
+
+    log_msg ">>>> build avrdude"
+    AVRDUDEVER="avrdude-6.3"
+
+    prepare_source http://download.savannah.gnu.org/releases/avrdude $AVRDUDEVER tar.gz
+
+    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
+
+    conf_compile_source avrdude "/opt/m68k/$TARGETARCHITECTURE/bin/avrdude" " --prefix=/opt/m68k/"
+
+    cd $M68KBUILD
+
+fi

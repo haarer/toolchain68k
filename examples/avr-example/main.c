@@ -1,14 +1,15 @@
-//#include <stdio.h>
-unsigned long int long_var = 0x12345678;
-char* string_ptr = "hallo\0";
+
+
+#include <avr/io.h>
+#include <util/delay.h>
 int main(int argc, char *argv[])
 {
-    int i=0;
+    DDRB |= (1<<7);
     while(1)
     {
-        i++;
-        long_var += i;
-        //printf("Hello world\n");
+        _delay_ms(1000);
+        PORTB |= (1<<7);
+        _delay_ms(1000);
+        PORTB &= ~(1<<7);
     }
-    //return 0;
 }
