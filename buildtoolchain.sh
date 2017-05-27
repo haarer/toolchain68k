@@ -28,36 +28,38 @@
 
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
-MAKEJOBS=5
-#TARGETARCHITECTURE=avr
-TARGETARCHITECTURE=m68k-elf
+MAKEJOBS=3
+TARGETARCHITECTURE=avr
+#TARGETARCHITECTURE=m68k-elf
+HOSTINSTALLPATH="/opt/crosschain"
 
-export PATH=/opt/m68k/bin:$PATH
+
+export PATH=$HOSTINSTALLPATH/bin:$PATH
 
 function determine_os () {
-if [ -f /etc/lsb-release ]; then
-    . /etc/lsb-release 
-    OS=$DISTRIB_ID
-    VER=$DISTRIB_RELEASE
-elif [ -f /usr/bin/lsb_release ]; then
-    OS=`/usr/bin/lsb_release -is`
-    VER=`/usr/bin/lsb_release -rs`
-elif [ -f /etc/debian_version ]; then
-    OS=Debian  # XXX or Ubuntu??
-    VER=$(cat /etc/debian_version)
-elif [ -f /etc/redhat-release ]; then
-    # TODO add code for Red Hat and CentOS here
-    ...
-else
-    OS=$(uname -s)
-    VER=$(uname -r)
-fi
+	if [ -f /etc/lsb-release ]; then
+	    . /etc/lsb-release 
+	    OS=$DISTRIB_ID
+	    VER=$DISTRIB_RELEASE
+	elif [ -f /usr/bin/lsb_release ]; then
+	    OS=`/usr/bin/lsb_release -is`
+	    VER=`/usr/bin/lsb_release -rs`
+	elif [ -f /etc/debian_version ]; then
+	    OS=Debian  # XXX or Ubuntu??
+	    VER=$(cat /etc/debian_version)
+	elif [ -f /etc/redhat-release ]; then
+	    # TODO add code for Red Hat and CentOS here
+	    ...
+	else
+	    OS=$(uname -s)
+	    VER=$(uname -r)
+	fi
 }
 
 function log_msg () {
-    local logline="`date` $1"
-    echo $logline >> $LOGFILE
-    echo $logline
+	local logline="`date` $1"
+	echo $logline >> $LOGFILE
+	echo $logline
 }
 
 #todo, consider this
@@ -98,10 +100,10 @@ function prepare_source () {
     fi
     cd $SOURCENAME
 
-    if [ ! -d m68k-obj ]; then
-        mkdir m68k-obj
+    if [ ! -d cross-chain-$TARGETARCHITECTURE-obj ]; then
+        mkdir cross-chain-$TARGETARCHITECTURE-obj
     fi	
-    cd m68k-obj
+    cd cross-chain-$TARGETARCHITECTURE-obj
 
 }
 
@@ -111,7 +113,7 @@ function prepare_source () {
 #   
 function install_package () {
     if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then
-        sudo sh -c "export PATH=$PATH:/opt/m68k/bin; make install"
+        sudo sh -c "export PATH=$PATH:$HOSTINSTALLPATH/bin; make install"
     else
         make install
     fi
@@ -155,16 +157,16 @@ if [ "$OS" = "MINGW64_NT-10.0" ]; then
 	echo "ouuch.. on windows"
 else
 	echo "eeek.. not on windows, doing sudo keepalive tricks"
-    EXECUTEABLESUFFIX=""
+	EXECUTEABLESUFFIX=""
 	sudo -v
 	while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 fi
 
-if [ ! -d cross-m68k ]; then
-	mkdir cross-m68k
+if [ ! -d cross-toolchain ]; then
+	mkdir cross-toolchain
 fi
 
-cd cross-m68k
+cd cross-toolchain
 
 M68KBUILD=`pwd`
 echo "build path:" $M68KBUILD
@@ -178,7 +180,7 @@ BINUTILS="binutils-2.25"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
-conf_compile_source binutils "/opt/m68k/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=/opt/m68k/" 
+conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
 
 cd $M68KBUILD
 
@@ -197,7 +199,7 @@ if [ ! -d ../gmp ]; then
     cd m68k-obj
 fi
 
-conf_compile_source gcc "/opt/m68k/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=/opt/m68k/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
+conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
 
 cd $M68KBUILD
 
@@ -212,7 +214,7 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    conf_compile_source avrlib "/opt/m68k/$TARGETARCHITECTURE/lib/libc.a" "--host=avr --prefix=/opt/m68k/"
+    conf_compile_source avrlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "--host=avr --prefix=$HOSTINSTALLPATH/"
 
     cd $M68KBUILD
 
@@ -228,7 +230,7 @@ else
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    conf_compile_source newlib "/opt/m68k/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" " --target=$TARGETARCHITECTURE --prefix=/opt/m68k/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
+    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" " --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
 
     cd $M68KBUILD
  
@@ -244,7 +246,7 @@ GDBVER="gdb-7.12"
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
-conf_compile_source gdb "/opt/m68k/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=/opt/m68k/"
+conf_compile_source gdb "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
 cd $M68KBUILD
 
@@ -290,7 +292,7 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    conf_compile_source avrdude "/opt/m68k/$TARGETARCHITECTURE/bin/avrdude" " --prefix=/opt/m68k/"
+    conf_compile_source avrdude "$HOSTINSTALLPATH/$TARGETARCHITECTURE/bin/avrdude" " --prefix=$HOSTINSTALLPATH/"
 
     cd $M68KBUILD
 
