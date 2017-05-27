@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2014, A.Haarer, All rights reserved. LGPLv3
+# Copyright (c) 2014-2017, A.Haarer, All rights reserved. LGPLv3
 
 # build 68k cross toolchain based on gcc
 # set the number of make jobs as appropriate for build machine
@@ -29,8 +29,14 @@
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=3
-TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=arm-none-eabi
+GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+#TARGETARCHITECTURE=avr
 #TARGETARCHITECTURE=m68k-elf
+
 HOSTINSTALLPATH="/opt/crosschain"
 
 
@@ -124,6 +130,10 @@ function conf_compile_source () {
     local DETECTFILE=$2
     local CONFIGURESTRING=$3
 
+    log_msg "CCS sourcepackage= $SOURCEPACKAGE"
+    log_msg "CCS detect file= $DETECTFILE"
+    log_msg "CCS cfgstring $CONFIGURESTRING"
+
     if [ ! -f config.status ]; then
         log_msg "configuring $SOURCEPACKAGE"
         ../configure $CONFIGURESTRING || exit 1
@@ -173,18 +183,19 @@ echo "build path:" $M68KBUILD
 
 
 
-#----------------------------------------------------------------------------------
+#-------------------------------- BINUTILS --------------------------------------------------
 
 log_msg ">>>> build binutils"
 BINUTILS="binutils-2.25"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
-conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
+BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
+conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
 
 cd $M68KBUILD
 
-#---------------------------------------------------------------------------------
+#--------------------------------- GCC ------------------------------------------------
 # build gcc
 
 log_msg ">>>> build gcc"
@@ -199,12 +210,14 @@ if [ ! -d ../gmp ]; then
     cd m68k-obj
 fi
 
-conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
+GCCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
+
+conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "$GCCFLAGS"
 
 cd $M68KBUILD
 
 if [ "$TARGETARCHITECTURE" = "avr" ]; then
-    #---------------------------------------------------------------------------------
+    #--------------------------------LIBC LIBAVR -------------------------------------------------
     #build avr libc
 
     log_msg ">>>> build avrlib"
@@ -214,13 +227,15 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    conf_compile_source avrlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "--host=avr --prefix=$HOSTINSTALLPATH/"
+    LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/"
+
+    conf_compile_source avrlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
     cd $M68KBUILD
 
 else
 
-    #---------------------------------------------------------------------------------
+    #--------------------------------LIBC NEWLIB -------------------------------------------------
     #build libc for other platforms
 
     log_msg ">>>> build newlib"
@@ -230,7 +245,9 @@ else
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" " --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
+    LIBCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
+
+    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" "$LIBCFLAGS"
 
     cd $M68KBUILD
  
@@ -246,7 +263,9 @@ GDBVER="gdb-7.12"
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
-conf_compile_source gdb "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "--target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
+GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
+
+conf_compile_source gdb "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
 
 cd $M68KBUILD
 
