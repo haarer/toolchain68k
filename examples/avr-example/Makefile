@@ -10,9 +10,9 @@ OBJCPY := avr-objcopy
 SIZE := avr-size
 OBJDUMP := avr-objdump
 
-CFLAGS += -mmcu=$(CPU) -I. -I/opt/m68k/avr/include -DF_CPU=16000000L -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -O2 -std=gnu99 -g
+CFLAGS += -mmcu=$(CPU) -I. -I/opt/crosschain/avr/include -DF_CPU=16000000L -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -O2 -std=gnu99 -g
 
-LFLAGS += -mmcu=$(CPU) -g -L/opt/m68k/avr/lib -lc -Wl,-Map=$(TARGET).map,--allow-multiple-definition
+LFLAGS += -mmcu=$(CPU) -g  -Wl,-Map=$(TARGET).map,--allow-multiple-definition
 
 
 # determine the object files
@@ -46,5 +46,5 @@ info: $(TARGET).elf
 	$(OBJDUMP) --headers $<
 
 flash: $(TARGET).hex
-	/opt/m68k/bin/avrdude -p$(CPU) -v -cwiring -PCOM3 -b115200 -C/opt/m68k/etc/avrdude.conf -D -Uflash:w:$(TARGET).hex:i
+	/opt/crosschain/bin/avrdude -p$(CPU) -v -cwiring -PCOM3 -b115200 -C/opt/crosschain/etc/avrdude.conf -D -Uflash:w:$(TARGET).hex:i
 
