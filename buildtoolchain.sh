@@ -29,13 +29,13 @@
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=3
-TARGETARCHITECTURE=arm-none-eabi
-GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+#TARGETARCHITECTURE=arm-none-eabi
+#GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+#BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+#LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+#GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 #TARGETARCHITECTURE=avr
-#TARGETARCHITECTURE=m68k-elf
+TARGETARCHITECTURE=m68k-elf
 
 HOSTINSTALLPATH="/opt/crosschain"
 
