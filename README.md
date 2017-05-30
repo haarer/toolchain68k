@@ -1,8 +1,12 @@
 # toolchain68k
+Main Goal:
 Build a toolchain for 68k cross developement using recent compilers and libraries.
-The build script is also supporting the avr target.
+
+The build script is also supporting the avr and arm-none-eabi targets, intended for developement on Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery)
 
 The script can be used on Windows 10 with MSYS2, on Debian 8, and on Fedora 25.
+
+There are example projects for m68k and avr.
 
 
 # Prepare Build Environment for Windows and MSYS
@@ -62,12 +66,12 @@ sh install_req_pkg_fedora.sh
 ```
 
 # Building and Installing of the Toolchain    
-Set the wanted target architecture in the build script by commenting out the unwanted arch.
+Set the wanted target architecture in the build script by commenting out the unwanted arch. It is also possible to add Target specific build options, see the arm-none-eabi Target how to do this.
 ```
 #TARGETARCHITECTURE=avr
 TARGETARCHITECTURE=m68k-elf
 ```
-Note that the toolchain is currently installed to /opt/m68k - i'll change that to something like /opt/crosstoolchain later.
+Note that the toolchain is installed to /opt/crosschain.
 Start the build script.
 ```
 bash   buildtoolchain.sh
@@ -89,7 +93,8 @@ cd examples/m68k-example
 make 
 ```
 
-### compile the avr toolchain examples
+
+### compile the avr toolchain example
 This example assumes an arduino mega connected to usb (com3, see makefile) and is a simple led blink example.
 ```
 cd examples/avr-example
