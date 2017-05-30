@@ -3,7 +3,7 @@
 
 # build 68k cross toolchain based on gcc
 # set the number of make jobs as appropriate for build machine
-# set the path after installation : export PATH=/opt/m68k/bin:$PATH
+# set the path after installation : export PATH=/opt/crosschain/bin:$PATH
 
 # tested on host platforms : msys2 64bit on windows 10, debian 8
 
