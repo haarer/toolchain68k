@@ -1,6 +1,12 @@
 # toolchain68k
 Main Goal:
-Build a toolchain for 68k cross developement using recent compilers (gcc 7.1.2) and libraries.
+Build a toolchain for 68k cross developement using recent compilers and libraries.
+ * gcc 7.2.0
+ * binutils 2.29
+ * gdb 8.0.1
+ * newlib 2.5.0
+ * avr-libc 2.0.0
+ * avrdude 6.3
 
 The build script is also supporting the avr and arm-none-eabi targets, intended for developement on Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery)
 
