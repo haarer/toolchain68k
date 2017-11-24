@@ -1,6 +1,6 @@
 # toolchain68k
 Main Goal:
-Build a toolchain for 68k cross developement using recent compilers and libraries.
+Build a toolchain for 68k cross developement using recent compilers (gcc 7.1.2) and libraries.
 
 The build script is also supporting the avr and arm-none-eabi targets, intended for developement on Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery)
 
@@ -81,7 +81,7 @@ On linux, authorize sudo (this needed for installation).
 # Testing the Toolchain
 Add the path to the binaries
 ```
-export PATH=$PATH:/opt/m68k/bin
+export PATH=$PATH:/opt/crosschain/bin
 ```
 
 ### compile one of the 68k toolchain examples
@@ -94,7 +94,7 @@ make
 ```
 
 
-### compile the avr toolchain example
+### compile the simple avr toolchain example
 This example assumes an arduino mega connected to usb (com3, see makefile) and is a simple led blink example.
 ```
 cd examples/avr-example
