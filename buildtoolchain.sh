@@ -186,7 +186,7 @@ echo "build path:" $M68KBUILD
 #-------------------------------- BINUTILS --------------------------------------------------
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.25"
+BINUTILS="binutils-2.29"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -199,15 +199,15 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-7.1.0"
+GCCVER="gcc-7.2.0"
 
-prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.bz2
+prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
 if [ ! -d ../gmp ]; then
     log_msg "fetching gcc prerequisites"
     cd ..
     ./contrib/download_prerequisites
-    cd m68k-obj
+    cd cross-chain-$TARGETARCHITECTURE-obj
 fi
 
 GCCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
@@ -258,7 +258,7 @@ fi
 #---------------------------------------------------------------------------------
 #build gdb
 #sudo apt-get install ncurses-dev
-GDBVER="gdb-7.12"
+GDBVER="gdb-8.0.1"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
