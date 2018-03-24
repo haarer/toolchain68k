@@ -34,8 +34,8 @@ MAKEJOBS=3
 #BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 #LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 #GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-#TARGETARCHITECTURE=avr
-TARGETARCHITECTURE=m68k-elf
+TARGETARCHITECTURE=avr
+#TARGETARCHITECTURE=m68k-elf
 
 HOSTINSTALLPATH="/opt/crosschain"
 
@@ -184,11 +184,20 @@ echo "build path:" $M68KBUILD
 
 
 #-------------------------------- BINUTILS --------------------------------------------------
+# build binutils
 
 log_msg ">>>> build binutils"
 BINUTILS="binutils-2.29"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
+
+if [ "$TARGETARCHITECTURE" = "avr" ]; then
+	log_msg "patching binutils"
+	tmpdir=`pwd`
+	cd ..
+	patch  -p0 -i $M68KBUILD/../avr_binutils.patch
+	cd $tmpdir
+fi
 
 BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
 conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
