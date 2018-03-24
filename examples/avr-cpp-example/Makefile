@@ -40,7 +40,7 @@ clean:
 size: $(TARGET).elf
 	$(SIZE) $(OBJ) $(AOBJ) $(TARGET).elf
 	@echo ""
-	$(SIZE) -Ax $(TARGET).elf
+	$(SIZE) --format avr --mcu $(CPU) $(TARGET).elf
 
 # print target info and generate lss
 info: $(TARGET).elf
