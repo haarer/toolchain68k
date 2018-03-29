@@ -39,6 +39,9 @@ if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
 	GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 fi
 
+TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=avr
+
 
 HOSTINSTALLPATH="/opt/crosschain"
 

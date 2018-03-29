@@ -22,7 +22,7 @@ extern "C" {
 
 // ------------------------------ base classes ---------------------------
 
-// RegisteredCmd 
+// RegisteredCmd
 //   used for registration of commands
 // and being able to call the CmdBase api from there
 
@@ -65,31 +65,30 @@ class RegisteredCmd {
                     printf(" %s\n",p->id());
             }
         }
-        
 };
 
 
 // base and specific commands implemented
 // with the curiously recurring template pattern
-// the specific command must 
-//   - implement the parse  method used in the template. 
+// the specific command must
+//   - implement the parse  method used in the template.
 //   - implement an id method
 
 template<typename T>
 class CmdBase: public RegisteredCmd
 {
 	void (* m_fu) (T*);
-  
+
 public:
 	CmdBase( void (* _fu) (T*) ):m_fu(_fu){}
-	
+
 	void receive(char* p_buf)
 	{
 		if ( ((T*)this)->parse(p_buf) )
-            m_fu( (T*)this );   
+            m_fu( (T*)this );
         else
             usage();
-		
+
 	}
     void usage()
     {
@@ -101,7 +100,7 @@ public:
 
 class SpecificCmd:public CmdBase< SpecificCmd >
 {
- 
+
 public:
 	uint32_t m_field_1;
 	uint32_t m_field_2;
@@ -122,7 +121,7 @@ public:
 	OtherSpecificCmd( void (* _cb) (OtherSpecificCmd*)):CmdBase< OtherSpecificCmd >(_cb){}
 
 	bool parse(char* p_buffer) { return sscanf( p_buffer, "%*s %x %x", &m_other_field_1, &m_other_field_2 ) == 2;  }
-    
+
 	const char* id(void){ return "othercmd <X8> <X8>";}
 };
 
@@ -158,20 +157,17 @@ static int uart_putchar(char c, FILE *stream)
 // adapter function to uart library
 static int uart_getchar(FILE *stream)
 {
-	
 	uint8_t c;
 	char *cp, *cp2;
 	static char b[RX_BUFSIZE];
 	static char *rxp;
-	
-	
+
 	int val;
-	
 
 	if (rxp == 0)
 	for (cp = b;;)
 	{
-		
+
 		// get a character from uart lib
 		do
 		{
@@ -270,9 +266,9 @@ void attachUART(void)
     _stdoutref.put=uart_putchar;
     _stdoutref.get=uart_getchar;
     _stdoutref.flags=_FDEV_SETUP_RW;
-    _stdoutref.udata=0;    
+    _stdoutref.udata=0;
     stdout = stdin = &_stdoutref;
-     
+
 }
 
 // ---------------------------------------- main loop ------------------------------------------------
@@ -282,17 +278,17 @@ int main(int argc, char *argv[])
     // set up stdio to use the uart
     attachUART();
     sei();
-  
-    printf("i am alive.. " __TIMESTAMP__ "\n") ;    
+
+    printf("i am alive.. " __TIMESTAMP__ "\n") ;
 
     char buf[100];
-    
+
 	while(1)
     {
         if ( (fgets (buf , 100 , stdin) != NULL) &&
              (strlen(buf) !=0)	 )
-        {   
-            RegisteredCmd::process_cmd(buf);            
+        {
+            RegisteredCmd::process_cmd(buf);
         }
     }
 }
