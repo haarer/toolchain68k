@@ -50,9 +50,9 @@ class IOPin
 	{
 		switch(PinNo)
 		{
-			case  2: return (PORTE & (1<<4) ) == (1<<4); break;
-			case 12: return (PORTB & (1<<6) ) == (1<<6); break;
-			case 13: return (PORTB & (1<<7) ) == (1<<7); break;
+			case  2: return (PINE & (1<<4) ) == (1<<4); break;
+			case 12: return (PINB & (1<<6) ) == (1<<6); break;
+			case 13: return (PINB & (1<<7) ) == (1<<7); break;
 		}
 	}
 };
@@ -64,7 +64,7 @@ int main(void)
 #ifdef CLASSIC
 	DDRB |= (1<<7);
 
-	while(  (  ( PORTB & (1<<6) ) !=(1<<6) ) )
+	while(  (  ( PINB & (1<<6) ) !=(1<<6) ) )
 		;
 
 	while(1)

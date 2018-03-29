@@ -16,10 +16,10 @@
 
 
 # Tips:
-# to speed up things:  chose a location without 
+# to speed up things:  chose a location without
 # - indexing (dont use windows home dir )
 # - virus scanner ( add exclusion, or stop scanner)
-# 
+#
 # chose a number of make jobs #number of cores + 1 to make use of all computer resources
 #
 # some sh versions dont like the () after functions - call the script using bash helps
@@ -28,14 +28,17 @@
 
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
-MAKEJOBS=3
+MAKEJOBS=5
+
 #TARGETARCHITECTURE=arm-none-eabi
-#GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-#BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-#LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-#GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-TARGETARCHITECTURE=avr
-#TARGETARCHITECTURE=m68k-elf
+
+if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
+	GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+	BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+	LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+	GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+fi
+
 
 HOSTINSTALLPATH="/opt/crosschain"
 
@@ -187,7 +190,7 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.29"
+BINUTILS="binutils-2.30"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -208,7 +211,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-7.2.0"
+GCCVER="gcc-7.3.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -248,7 +251,7 @@ else
     #build libc for other platforms
 
     log_msg ">>>> build newlib"
-    LIBCVER="newlib-2.5.0"
+    LIBCVER="newlib-3.0.0"
 
     prepare_source ftp://sources.redhat.com/pub/newlib $LIBCVER tar.gz
 
@@ -267,7 +270,7 @@ fi
 #---------------------------------------------------------------------------------
 #build gdb
 #sudo apt-get install ncurses-dev
-GDBVER="gdb-8.0.1"
+GDBVER="gdb-8.1"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
