@@ -32,6 +32,13 @@ MAKEJOBS=5
 
 #TARGETARCHITECTURE=arm-none-eabi
 
+
+export CFLAGS='-O2 -pipe'
+export CXXFLAGS='-O2 -pipe'
+export LDFLAGS='-s'
+export DEBUG_FLAGS=''
+
+
 if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
 	GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 	BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"

@@ -3,7 +3,7 @@ Main Goal:
 Build a toolchain for 68k, avr and cortex  cross developement using recent compilers and 
 libraries.
  * gcc 7.3
- * binutils 2.30 (with size patch for avr target)
+ * binutils 2.30 (with avr size patch for avr target)
  * gdb 8.1
  * newlib 3.0.0
  * avr-libc 2.0.0
@@ -103,7 +103,7 @@ make
 
 
 ### compile the simple avr toolchain example
-This example assumes an arduino mega connected to usb (com3, see makefile) and is a simple led blink example.
+This example assumes an arduino mega connected to usb (see makefile and change com port accordingly) and is a simple led blink example.
 ```
 cd examples/avr-example
 make 
