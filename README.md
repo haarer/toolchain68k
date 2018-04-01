@@ -3,7 +3,7 @@ Main Goal:
 Build a toolchain for 68k, avr and cortex  cross developement using recent compilers and 
 libraries.
  * gcc 7.3
- * binutils 2.30
+ * binutils 2.30 (with avr size patch for avr target)
  * gdb 8.1
  * newlib 3.0.0
  * avr-libc 2.0.0
@@ -12,7 +12,7 @@ libraries.
 The build script is supporting the m68k-elf, avr and arm-none-eabi targets, intended for developement 
 on Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery)
 
-The script can be used on Windows 10 with MSYS2, on Debian 8, and on Fedora 25.
+The script can be used on Windows 10 with MSYS2, on Debian 8, and on Fedora 25. It may work on other platforms but i dont run tests for other platforms.
 
 There are example projects for m68k and avr.
 
@@ -103,7 +103,7 @@ make
 
 
 ### compile the simple avr toolchain example
-This example assumes an arduino mega connected to usb (com3, see makefile) and is a simple led blink example.
+This example assumes an arduino mega connected to usb (see makefile and change com port accordingly) and is a simple led blink example.
 ```
 cd examples/avr-example
 make 

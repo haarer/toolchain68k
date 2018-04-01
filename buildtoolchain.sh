@@ -16,10 +16,10 @@
 
 
 # Tips:
-# to speed up things:  chose a location without 
+# to speed up things:  chose a location without
 # - indexing (dont use windows home dir )
 # - virus scanner ( add exclusion, or stop scanner)
-# 
+#
 # chose a number of make jobs #number of cores + 1 to make use of all computer resources
 #
 # some sh versions dont like the () after functions - call the script using bash helps
@@ -31,8 +31,13 @@ LOGFILE="`pwd`/buildlog.txt"
 MAKEJOBS=5
 
 #TARGETARCHITECTURE=arm-none-eabi
-TARGETARCHITECTURE=avr
-#TARGETARCHITECTURE=m68k-elf
+
+
+export CFLAGS='-O2 -pipe'
+export CXXFLAGS='-O2 -pipe'
+export LDFLAGS='-s'
+export DEBUG_FLAGS=''
+
 
 if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
 	GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
@@ -40,6 +45,9 @@ if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
 	LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 	GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 fi
+
+TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=avr
 
 
 HOSTINSTALLPATH="/opt/crosschain"
@@ -189,11 +197,20 @@ echo "build path:" $M68KBUILD
 
 
 #-------------------------------- BINUTILS --------------------------------------------------
+# build binutils
 
 log_msg ">>>> build binutils"
 BINUTILS="binutils-2.30"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
+
+if [ "$TARGETARCHITECTURE" = "avr" ]; then
+	log_msg "patching binutils"
+	tmpdir=`pwd`
+	cd ..
+	patch  -p0 -i $M68KBUILD/../avr_binutils.patch
+	cd $tmpdir
+fi
 
 BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
 conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
