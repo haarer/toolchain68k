@@ -31,6 +31,8 @@ LOGFILE="`pwd`/buildlog.txt"
 MAKEJOBS=5
 
 #TARGETARCHITECTURE=arm-none-eabi
+#TARGETARCHITECTURE=m68k-elf
+TARGETARCHITECTURE=avr
 
 
 export CFLAGS='-O2 -pipe'
@@ -46,8 +48,6 @@ if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
 	GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
 fi
 
-TARGETARCHITECTURE=m68k-elf
-#TARGETARCHITECTURE=avr
 
 
 HOSTINSTALLPATH="/opt/crosschain"
@@ -102,13 +102,13 @@ function prepare_source () {
     if [ ! -d $SOURCENAME ]; then
         log_msg " unpacking $SOURCENAME"
         if [ "$ARCHTYPE" == "tar.bz2" ]; then
-            tar -xjf $SOURCENAME.$ARCHTYPE 
+            tar -xjf $SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "tar.gz" ]; then
-            tar -xzf $SOURCENAME.$ARCHTYPE 
+            tar -xzf $SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "tar.xz" ]; then
-            tar -xJf $SOURCENAME.$ARCHTYPE 
+            tar -xJf $SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "zip" ]; then
-            unzip $SOURCENAME.$ARCHTYPE 
+            unzip $SOURCENAME.$ARCHTYPE
         else
             log_msg " !!!!! unknown archive format"
             exit 1
@@ -121,15 +121,15 @@ function prepare_source () {
 
     if [ ! -d cross-chain-$TARGETARCHITECTURE-obj ]; then
         mkdir cross-chain-$TARGETARCHITECTURE-obj
-    fi	
+    fi
     cd cross-chain-$TARGETARCHITECTURE-obj
 
 }
 
 #function to install - requests privileges from user if os requires
-# issues: 
+# issues:
 # *  is the detection safe ?
-#   
+#
 function install_package () {
     if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then
         sudo sh -c "export PATH=$PATH:$HOSTINSTALLPATH/bin; make install"
@@ -221,7 +221,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-7.3.0"
+GCCVER="gcc-8.1.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -272,10 +272,9 @@ else
     conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" "$LIBCFLAGS"
 
     cd $M68KBUILD
- 
-fi 
 
-#erst mal ohne gdb
+fi
+
 
 #---------------------------------------------------------------------------------
 #build gdb

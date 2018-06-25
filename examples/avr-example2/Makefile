@@ -1,6 +1,9 @@
 # simple led blink project, assuming Arduino Mega on port COM3
 
 
+
+PORT:= COM3
+#PORT:= /dev/ttyACM0
 TARGET := avr-test
 CPU:= atmega2560
 
@@ -20,7 +23,7 @@ OBJ := main.o uart.o
 
 
 # link the program
-$(TARGET).elf: $(OBJ) $(AOBJ) 
+$(TARGET).elf: $(OBJ) $(AOBJ)
 	@echo "---> link project ..."
 	$(CC) $(AOBJ) $(OBJ) $(LIBS) $(LFLAGS) -o $@
 
@@ -46,5 +49,5 @@ info: $(TARGET).elf
 	$(OBJDUMP) --headers $<
 
 flash: $(TARGET).hex
-	/opt/crosschain/bin/avrdude -p$(CPU) -v -cwiring -PCOM8 -b115200 -C/opt/crosschain/etc/avrdude.conf -D -Uflash:w:$(TARGET).hex:i
+	/opt/crosschain/bin/avrdude -p$(CPU) -v -cwiring -P$(PORT) -b115200 -C/opt/crosschain/etc/avrdude.conf -D -Uflash:w:$(TARGET).hex:i
 
