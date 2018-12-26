@@ -200,7 +200,7 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.30"
+BINUTILS="binutils-2.31.1"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -221,7 +221,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-8.1.0"
+GCCVER="gcc-8.2.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -279,7 +279,7 @@ fi
 #---------------------------------------------------------------------------------
 #build gdb
 #sudo apt-get install ncurses-dev
-GDBVER="gdb-8.1"
+GDBVER="gdb-8.2.1"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
