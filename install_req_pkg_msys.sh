@@ -7,7 +7,7 @@ pacman -S --needed git msys2-runtime unzip make tar flex bison diffutils texinfo
 ## all after this is only needed if avrdude shall use usb devices
 
 # pull additonal libraries
-pacman -S --needed mingw-w64-x86_64-libusb mingw-w64-x86_64-libusb-compat-git mingw-w64-x86_64-libftdi
+pacman -S --needed mingw-w64-x86_64-libusb mingw-w64-x86_64-libusb-compat-git mingw-w64-x86_64-libftdi cmake
 
 # nomally the avrdude should be updated to use the new libusb-1.0 but ...
 # 

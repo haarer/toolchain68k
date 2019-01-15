@@ -28,11 +28,11 @@
 
 LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
-MAKEJOBS=5
+MAKEJOBS=16
 
-#TARGETARCHITECTURE=arm-none-eabi
+TARGETARCHITECTURE=arm-none-eabi
 #TARGETARCHITECTURE=m68k-elf
-TARGETARCHITECTURE=avr
+#TARGETARCHITECTURE=avr
 
 
 export CFLAGS='-O2 -pipe'
@@ -41,11 +41,13 @@ export LDFLAGS='-s'
 export DEBUG_FLAGS=''
 
 
-if [ "$TARGETARCHITECTURE" == "arm-nonw-eabi" ]; then
-	GCCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-	BINUTILSFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-	LIBCFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
-	GDBFLAGS="--with-cpu=cortex-m4 --with-fpu=fpv4-sp-d16 --with-float=hard --with-mode=thumb"
+if [ "$TARGETARCHITECTURE" == "arm-none-eabi" ]; then
+        MACHINEFLAGS="--with-cpu=cortex-m4 --with-cpu=cortex-m3 --with-fpu=fpv4-sp-d16 --with-float=hard --with-float=softfp 
+-with-float=soft --with-mode=thumb"
+	GCCFLAGS=$MACHINEFLAGS
+	BINUTILSFLAGS=$MACHINEFLAGS
+	LIBCFLAGS=$MACHINEFLAGS
+	GDBFLAGS=$MACHINEFLAGS
 fi
 
 
@@ -91,12 +93,24 @@ function prepare_source () {
     local SOURCENAME=$2
     local ARCHTYPE=$3
 
-    if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
-        log_msg " downloading $SOURCENAME"
-        wget $BASEURL/$SOURCENAME.$ARCHTYPE
-        log_msg " downloading $SOURCENAME finished"
+    if [ "$ARCHTYPE" = "git" ]; then
+        if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
+            log_msg " cloning $BASEURL"
+            git clone $BASEURL
+        else
+            log_msg " pulling update from $BASEURL"
+            cd $SOURCENAME
+            git pull
+        fi
+    
     else
-        log_msg " downloading $SOURCENAME skipped"
+        if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
+            log_msg " downloading $SOURCENAME"
+            wget $BASEURL/$SOURCENAME.$ARCHTYPE
+            log_msg " downloading $SOURCENAME finished"
+        else
+            log_msg " downloading $SOURCENAME skipped"
+        fi
     fi
 
     if [ ! -d $SOURCENAME ]; then
@@ -109,6 +123,8 @@ function prepare_source () {
             tar -xJf $SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "zip" ]; then
             unzip $SOURCENAME.$ARCHTYPE
+        elif [ "$ARCHTYPE" = "git" ]; then
+            echo "" #nothing to do for git
         else
             log_msg " !!!!! unknown archive format"
             exit 1
@@ -269,7 +285,7 @@ else
 
     LIBCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
 
-    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/mfidoa/softfp/libc.a" "$LIBCFLAGS"
+    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
     cd $M68KBUILD
 
@@ -333,6 +349,44 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
     conf_compile_source avrdude "$HOSTINSTALLPATH/$TARGETARCHITECTURE/bin/avrdude" " --prefix=$HOSTINSTALLPATH/"
+
+    cd $M68KBUILD
+
+fi
+
+
+if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
+
+
+    #---------------------------------------------------------------------------------
+    #build texane stutils.
+    #   On windows builds,  needs the libusb
+    #   see make file of arm-none-eabi example
+
+    log_msg ">>>> build texane/stlink"
+    STLINKVER="stlink"
+
+
+prepare_source https://github.com/texane/stlink.git $STLINKVER git
+
+    if [ ! -f /opt/$TARGETARCHITECTURE/bin/st-flash.exe ]; then
+
+        log_msg "building $SOURCEPACKAGE"
+        cd ..
+        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -B cross-chain-$TARGETARCHITECTURE-obj
+        cd cross-chain-$TARGETARCHITECTURE-obj
+        make
+        log_msg "building $SOURCEPACKAGE finished"
+
+        log_msg "install $SOURCEPACKAGE"
+        make install
+        #cp st-flash.exe $HOSTINSTALLPATH/bin/
+        #cp st-info.exe $HOSTINSTALLPATH/bin/
+        #cp src/gdbserver/st-util.exe $HOSTINSTALLPATH/bin/
+        log_msg "install $SOURCEPACKAGE finished"
+    else
+        log_msg "compiling and install texane/stlink skipped"
+    fi
 
     cd $M68KBUILD
 

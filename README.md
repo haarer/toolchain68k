@@ -1,6 +1,6 @@
 # toolchain68k
 Main Goal:
-Build a toolchain for 68k, avr and cortex  cross developement using recent compilers and libraries.
+Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement using recent compilers and libraries.
 
  * gcc 8.2.0
  * binutils 2.31 (with avr size patch for avr target)
@@ -8,9 +8,10 @@ Build a toolchain for 68k, avr and cortex  cross developement using recent compi
  * newlib 3.0.0
  * avr-libc 2.0.0
  * avrdude 6.3
+ * texane/stlink
 
 The build script is supporting the m68k-elf, avr and arm-none-eabi targets, intended for developement 
-on various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery)
+on various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
 The script can be used on Windows 10 with MSYS2, on Debian 9, and on Fedora 25. It may work on other platforms but i dont run tests for other platforms.
 
@@ -98,7 +99,7 @@ On linux, the build script asks for the sudo password. (this needed for installa
 # Testing the Toolchain
 Add the path to the binaries
 ```
-export PATH=$PATH:/opt/crosschain/bin
+export PATH=$PATH:/opt/crosschain/bin:/opt/crosschain/lib/
 ```
 
 ### compile one of the 68k toolchain examples
@@ -114,7 +115,18 @@ make
 ### compile the simple avr toolchain example
 This example assumes an arduino mega connected to usb (see makefile and change com port accordingly) and is a simple led blink example.
 ```
-cd examples/avr-example
+cd examples/avr-example-example
 make 
 make flash
 ```
+
+### compile the simple arm-none-eabi toolchain example
+This example assumes blue pill STM32F103C8 board  connected via a STLINK-2 adapter to usb (see makefile ) and is a simple led blink example.
+It requires the ST Microelectronics Std_Peripheral Lib unpacked into the example directory
+```
+cd examples/arm-none-eabi
+make 
+make flash
+```
+
+ [1][https://www.st.com/content/ccc/resource/technical/software/firmware/48/ab/e5/17/0d/79/43/74/stsw-stm32054.zip/files/stsw-stm32054.zip/_jcr_content/translations/en.stsw-stm32054.zip]
