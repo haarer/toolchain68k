@@ -122,11 +122,11 @@ make flash
 
 ### compile the simple arm-none-eabi toolchain example
 This example assumes blue pill STM32F103C8 board  connected via a STLINK-2 adapter to usb (see makefile ) and is a simple led blink example.
-It requires the ST Microelectronics Std_Peripheral Lib unpacked into the example directory
+It requires the [ST Microelectronics Std_Peripheral Lib][1] unpacked into the example directory
 ```
 cd examples/arm-none-eabi
 make 
 make flash
 ```
 
- [1][https://www.st.com/content/ccc/resource/technical/software/firmware/48/ab/e5/17/0d/79/43/74/stsw-stm32054.zip/files/stsw-stm32054.zip/_jcr_content/translations/en.stsw-stm32054.zip]
+  [1] : https://www.st.com/content/ccc/resource/technical/software/firmware/48/ab/e5/17/0d/79/43/74/stsw-stm32054.zip/files/stsw-stm32054.zip/_jcr_content/translations/en.stsw-stm32054.zip
