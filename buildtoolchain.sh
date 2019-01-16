@@ -102,7 +102,6 @@ function prepare_source () {
             cd $SOURCENAME
             git pull
         fi
-    
     else
         if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
             log_msg " downloading $SOURCENAME"
@@ -373,17 +372,20 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
 
         log_msg "building $SOURCEPACKAGE"
         cd ..
-        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -B cross-chain-$TARGETARCHITECTURE-obj
+        if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then # on linux install stlink into system
+        cmake . -Bcross-chain-$TARGETARCHITECTURE-obj
+        else
+        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -Bcross-chain-$TARGETARCHITECTURE-obj
+        fi
         cd cross-chain-$TARGETARCHITECTURE-obj
         make
         log_msg "building $SOURCEPACKAGE finished"
 
+
         log_msg "install $SOURCEPACKAGE"
-        make install
-        #cp st-flash.exe $HOSTINSTALLPATH/bin/
-        #cp st-info.exe $HOSTINSTALLPATH/bin/
-        #cp src/gdbserver/st-util.exe $HOSTINSTALLPATH/bin/
+        install_package
         log_msg "install $SOURCEPACKAGE finished"
+
     else
         log_msg "compiling and install texane/stlink skipped"
     fi
@@ -391,3 +393,4 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
     cd $M68KBUILD
 
 fi
+
