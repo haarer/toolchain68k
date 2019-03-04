@@ -30,8 +30,8 @@ LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=16
 
-TARGETARCHITECTURE=arm-none-eabi
-#TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=arm-none-eabi
+TARGETARCHITECTURE=m68k-elf
 #TARGETARCHITECTURE=avr
 
 
@@ -236,7 +236,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-8.2.0"
+GCCVER="gcc-8.3.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -276,7 +276,7 @@ else
     #build libc for other platforms
 
     log_msg ">>>> build newlib"
-    LIBCVER="newlib-3.0.0"
+    LIBCVER="newlib-3.1.0"
 
     prepare_source ftp://sources.redhat.com/pub/newlib $LIBCVER tar.gz
 
