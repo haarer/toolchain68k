@@ -2,10 +2,10 @@
 Main Goal:
 Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement using recent compilers and libraries.
 
- * gcc 8.2.0
+ * gcc 8.3.0
  * binutils 2.31 (with avr size patch for avr target)
  * gdb 8.2.1
- * newlib 3.0.0
+ * newlib 3.1.0
  * avr-libc 2.0.0
  * avrdude 6.3
  * texane/stlink
