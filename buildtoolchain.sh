@@ -30,11 +30,9 @@ LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=16
 
-
 #TARGETARCHITECTURE=arm-none-eabi
 #TARGETARCHITECTURE=m68k-elf
 TARGETARCHITECTURE=avr
-
 
 export CFLAGS='-O2 -pipe'
 export CXXFLAGS='-O2 -pipe'
@@ -103,7 +101,6 @@ function prepare_source () {
             cd $SOURCENAME
             git pull
         fi
-    
     else
         if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
             log_msg " downloading $SOURCENAME"
@@ -374,17 +371,20 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
 
         log_msg "building $SOURCEPACKAGE"
         cd ..
-        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -B cross-chain-$TARGETARCHITECTURE-obj
+        if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then # on linux install stlink into system
+        cmake . -Bcross-chain-$TARGETARCHITECTURE-obj
+        else
+        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -Bcross-chain-$TARGETARCHITECTURE-obj
+        fi
         cd cross-chain-$TARGETARCHITECTURE-obj
         make
         log_msg "building $SOURCEPACKAGE finished"
 
+
         log_msg "install $SOURCEPACKAGE"
-        make install
-        #cp st-flash.exe $HOSTINSTALLPATH/bin/
-        #cp st-info.exe $HOSTINSTALLPATH/bin/
-        #cp src/gdbserver/st-util.exe $HOSTINSTALLPATH/bin/
+        install_package
         log_msg "install $SOURCEPACKAGE finished"
+
     else
         log_msg "compiling and install texane/stlink skipped"
     fi
@@ -392,3 +392,7 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
     cd $M68KBUILD
 
 fi
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85b3f70ab5cd15ad5d5bdab48f4627b4abadfc71
