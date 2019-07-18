@@ -2,10 +2,10 @@
 Main Goal:
 Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement using recent compilers and libraries.
 
- * gcc 8.2.0
- * binutils 2.31 (with avr size patch for avr target)
- * gdb 8.2.1
- * newlib 3.0.0
+ * gcc 9.1.0
+ * binutils 2.32 (with avr size patch for avr target)
+ * gdb 8.3
+ * newlib 3.1.0
  * avr-libc 2.0.0
  * avrdude 6.3
  * texane/stlink
@@ -13,7 +13,7 @@ Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement u
 The build script is supporting the m68k-elf, avr and arm-none-eabi targets, intended for developement 
 on various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
-The script can be used on Windows 10 with MSYS2, on Debian 9, and on Fedora 25. It may work on other platforms but i dont run tests for other platforms.
+The script can be used on Windows 10 with MSYS2, on Debian 9. It may work on other platforms but i dont run tests for other platforms.
 
 There are example projects for m68k and avr.
 

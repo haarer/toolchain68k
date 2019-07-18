@@ -30,9 +30,10 @@ LOGFILE="`pwd`/buildlog.txt"
 #set the number of parallel makes
 MAKEJOBS=16
 
-TARGETARCHITECTURE=arm-none-eabi
+
+#TARGETARCHITECTURE=arm-none-eabi
 #TARGETARCHITECTURE=m68k-elf
-#TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=avr
 
 
 export CFLAGS='-O2 -pipe'
@@ -216,7 +217,7 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.31.1"
+BINUTILS="binutils-2.32"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -237,7 +238,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-8.2.0"
+GCCVER="gcc-9.1.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -277,7 +278,7 @@ else
     #build libc for other platforms
 
     log_msg ">>>> build newlib"
-    LIBCVER="newlib-3.0.0"
+    LIBCVER="newlib-3.1.0"
 
     prepare_source ftp://sources.redhat.com/pub/newlib $LIBCVER tar.gz
 
@@ -295,7 +296,7 @@ fi
 #---------------------------------------------------------------------------------
 #build gdb
 #sudo apt-get install ncurses-dev
-GDBVER="gdb-8.2.1"
+GDBVER="gdb-8.3"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
