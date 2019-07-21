@@ -1,4 +1,4 @@
-l#!/bin/bash
+#!/bin/bash
 # Copyright (c) 2014-2017, A.Haarer, All rights reserved. LGPLv3
 
 # build 68k cross toolchain based on gcc
