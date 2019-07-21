@@ -1,4 +1,4 @@
-#!/bin/bash
+l#!/bin/bash
 # Copyright (c) 2014-2017, A.Haarer, All rights reserved. LGPLv3
 
 # build 68k cross toolchain based on gcc
@@ -392,7 +392,3 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
     cd $M68KBUILD
 
 fi
-<<<<<<< HEAD
-=======
-
->>>>>>> 85b3f70ab5cd15ad5d5bdab48f4627b4abadfc71
