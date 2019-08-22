@@ -24,15 +24,29 @@
 #
 # some sh versions dont like the () after functions - call the script using bash helps
 #
-# on linux the script asks for su privileges at start - they are kept during script runtime but used only for make install
 
 LOGFILE="`pwd`/buildlog.txt"
+
 #set the number of parallel makes
 MAKEJOBS=16
 
+#set this to the desired target architecture
 #TARGETARCHITECTURE=arm-none-eabi
-#TARGETARCHITECTURE=m68k-elf
-TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=avr
+
+#set this according to requirements: 
+# "package" builds platformio compatible toolchain archives
+# "install" deploys to /opt/crosschain. make sure, you are allowed to write !
+DEPLOY=package
+#DEPLOY=install
+
+if [ "$DEPLOY" == "package" ]; then
+    HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
+else
+    HOSTINSTALLPATH="/opt/crosschain"
+fi
+
 
 export CFLAGS='-O2 -pipe'
 export CXXFLAGS='-O2 -pipe'
@@ -51,7 +65,6 @@ fi
 
 
 
-HOSTINSTALLPATH="/opt/crosschain"
 
 
 export PATH=$HOSTINSTALLPATH/bin:$PATH
@@ -67,9 +80,6 @@ function determine_os () {
 	elif [ -f /etc/debian_version ]; then
 	    OS=Debian  # XXX or Ubuntu??
 	    VER=$(cat /etc/debian_version)
-	elif [ -f /etc/redhat-release ]; then
-	    # TODO add code for Red Hat and CentOS here
-	    ...
 	else
 	    OS=$(uname -s)
 	    VER=$(uname -r)
@@ -140,16 +150,9 @@ function prepare_source () {
 
 }
 
-#function to install - requests privileges from user if os requires
-# issues:
-# *  is the detection safe ?
-#
+#function to install package
 function install_package () {
-    if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then
-        sudo sh -c "export PATH=$PATH:$HOSTINSTALLPATH/bin; make install"
-    else
-        make install
-    fi
+    make install
 }
 
 function conf_compile_source () {
@@ -189,14 +192,12 @@ log_msg " start of buildscript"
 
 determine_os
 log_msg " building on OS: $OS $VER for target architecture $TARGETARCHITECTURE"
-if [ "$OS" = "MINGW64_NT-10.0" ]; then
+if [[ $OS = MINGW* ]]; then
 	EXECUTEABLESUFFIX=".exe"
-	echo "ouuch.. on windows"
+	echo "ouch.. on windows"
 else
-	echo "eeek.. not on windows, doing sudo keepalive tricks"
+	echo "not on windows"
 	EXECUTEABLESUFFIX=""
-	sudo -v
-	while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 fi
 
 if [ ! -d cross-toolchain ]; then
@@ -235,7 +236,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-9.1.0"
+GCCVER="gcc-9.2.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -392,7 +393,50 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
     cd $M68KBUILD
 
 fi
-<<<<<<< HEAD
-=======
 
->>>>>>> 85b3f70ab5cd15ad5d5bdab48f4627b4abadfc71
+#---------------------------------------------------------------------------------
+#build pio package if required
+if [ "$DEPLOY" == "package" ]; then
+
+#works only in bash
+PACKAGEVER=${GCCVER/#gcc-}
+
+if [[ $OS = MINGW* ]]; then EXECUTEABLESUFFIX=".exe" echo "on windows, copy mingw dlls"
+for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll
+do
+    cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
+done
+cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
+{
+    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+    "name": "toolchain-$TARGETARCHITECTURE-current",
+    "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+    ],
+    "url": "https://github.com/haarer/toolchain68k",
+    "version": "$PACKAGEVER"
+}
+EOFWINDOWSVARIANT
+
+else
+cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
+{
+    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+    "name": "toolchain-$TARGETARCHITECTURE-current",
+    "system": [
+        "linux_x86_64"
+    ],
+    "url": "https://github.com/haarer/toolchain68k",
+    "version": "$PACKAGEVER"
+}
+EOFLINUXVARIANT
+
+fi
+
+cd $HOSTINSTALLPATH ;tar cvzf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
+sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
+
+fi
+
