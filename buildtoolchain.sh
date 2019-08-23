@@ -236,7 +236,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-8.3.0"
+GCCVER="gcc-9.2.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -426,7 +426,7 @@ cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
     "name": "toolchain-$TARGETARCHITECTURE-current",
     "system": [
-        "linux_x86"
+        "linux_x86_64"
     ],
     "url": "https://github.com/haarer/toolchain68k",
     "version": "$PACKAGEVER"
