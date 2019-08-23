@@ -2,21 +2,30 @@
 Main Goal:
 Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement using recent compilers and libraries.
 
- * gcc 9.1.0
+This supports development for various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
+
+The used toolchain versions are
+ * gcc 9.2.0
  * binutils 2.32 (with avr size patch for avr target)
  * gdb 8.3
  * newlib 3.1.0
  * avr-libc 2.0.0
  * avrdude 6.3
- * texane/stlink
+ * texane/stlink (pulled from github)
 
-The build script is supporting the m68k-elf, avr and arm-none-eabi targets, intended for developement 
-on various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
+The build script can build for the following target architectures
+ * m68k-elf
+ * avr
+ * arm-none-eabi
 
-The script can be used on Windows 10 with MSYS2, on Debian 9. It may work on other platforms but i dont run tests for other platforms.
+The script works on Windows 10 with MSYS2 and on Debian 9. It may work on other platforms but i dont run any tests.
+
+The toolchains are either installed into a directory or packaged into archives suitable for the platform ide.
+The archives can be used with eclipse or with make files as well - just unpack them.
+
+The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use. See https://github.com/haarer/platform-atmelavr .
 
 There are example projects for m68k and avr.
-
 
 # Prepare Build Environment for Windows and MSYS
 all commands are to be typed into the msys shell
@@ -63,7 +72,7 @@ cd toolchain68k
 bash install_req_pkg_debian.sh
 ```
 
-# Prepare Build Environment for Fedora 25
+# Prepare Build Environment for Fedora
 First install git.
 ```
 sudo yum install git
@@ -83,6 +92,12 @@ Set the wanted target architecture in the build script by commenting out the unw
 #TARGETARCHITECTURE=avr
 TARGETARCHITECTURE=m68k-elf
 ```
+Select the method of deployment - either as package or install.
+
+```
+DEPLOY=package
+#DEPLOY=install
+```
 Start the build script.
 ```
 bash   buildtoolchain.sh
@@ -92,14 +107,15 @@ The script obtains the sources, unpacks them and builds the tools of the toolcha
 
 The progress of the build is written to a logfile: ```buildlog.txt```
 
-Note that the toolchain is installed to /opt/crosschain.
-
-On linux, the build script asks for the sudo password. (this needed for installation).
+Note that the toolchain used to be /opt/crosschain, now the default is to create platformio toolchain packages. 
 
 # Testing the Toolchain
-Add the path to the binaries
+Add the path to the binaries 
+
+This depends on $HOSTINSTALLPATH in the script)
+
 ```
-export PATH=$PATH:/opt/crosschain/bin:/opt/crosschain/lib/
+export PATH=$PATH:/opt/crosschain/bin
 ```
 
 ### compile one of the 68k toolchain examples

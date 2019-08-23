@@ -24,17 +24,29 @@
 #
 # some sh versions dont like the () after functions - call the script using bash helps
 #
-# on linux the script asks for su privileges at start - they are kept during script runtime but used only for make install
 
 LOGFILE="`pwd`/buildlog.txt"
+
 #set the number of parallel makes
 MAKEJOBS=16
 
+#set this to the desired target architecture
 #TARGETARCHITECTURE=arm-none-eabi
 TARGETARCHITECTURE=m68k-elf
 #TARGETARCHITECTURE=avr
 
-HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
+#set this according to requirements: 
+# "package" builds platformio compatible toolchain archives
+# "install" deploys to /opt/crosschain. make sure, you are allowed to write !
+DEPLOY=package
+#DEPLOY=install
+
+if [ "$DEPLOY" == "package" ]; then
+    HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
+else
+    HOSTINSTALLPATH="/opt/crosschain"
+fi
+
 
 export CFLAGS='-O2 -pipe'
 export CXXFLAGS='-O2 -pipe'
@@ -224,7 +236,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-9.2.0"
+GCCVER="gcc-8.3.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -383,17 +395,18 @@ prepare_source https://github.com/texane/stlink.git $STLINKVER git
 fi
 
 #---------------------------------------------------------------------------------
-#build pio package
+#build pio package if required
+if [ "$DEPLOY" == "package" ]; then
 
+#works only in bash
+PACKAGEVER=${GCCVER/#gcc-}
 
-if [[ $OS = MINGW* ]]; then
-        EXECUTEABLESUFFIX=".exe"
-        echo "on windows, copy mingw dlls"
+if [[ $OS = MINGW* ]]; then EXECUTEABLESUFFIX=".exe" echo "on windows, copy mingw dlls"
 for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll
 do
     cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
 done
-cat >>$HOSTINSTALLPATH/package.json <<EOF
+cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
 {
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
     "name": "toolchain-$TARGETARCHITECTURE-current",
@@ -403,12 +416,12 @@ cat >>$HOSTINSTALLPATH/package.json <<EOF
         "windows_x86"
     ],
     "url": "https://github.com/haarer/toolchain68k",
-    "version": "$GCCVER"
+    "version": "$PACKAGEVER"
 }
-EOF
+EOFWINDOWSVARIANT
 
 else
-cat >>$HOSTINSTALLPATH/package.json <<EOF
+cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
 {
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
     "name": "toolchain-$TARGETARCHITECTURE-current",
@@ -416,13 +429,14 @@ cat >>$HOSTINSTALLPATH/package.json <<EOF
         "linux_x86"
     ],
     "url": "https://github.com/haarer/toolchain68k",
-    "version": "$GCCVER"
+    "version": "$PACKAGEVER"
 }
-EOF
+EOFLINUXVARIANT
 
 fi
 
 cd $HOSTINSTALLPATH ;tar cvzf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
 sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
+fi
 

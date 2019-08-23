@@ -1,7 +1,7 @@
 {
   "toolchain-avr-current": [
     {
-      "sha1": "1e28effc4aca901140538ff5a84c3fe0f324c932", 
+      "sha1": "e3f267d2972bc440f9769db615b0b1e608e39898", 
       "system": [
         "windows",
         "windows_amd64",
@@ -9,6 +9,58 @@
       ], 
       "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz", 
       "version": "9.2.0"
+    },
+    {
+      "sha1": "4e53d75ddbaf9c9bfaa19cd617fc76705566675d", 
+      "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+      ], 
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz", 
+      "version": "8.3.0"
+    },
+    {
+      "sha1": "1b8886e8cd0bbd114658e08e5688841d5f6738db", 
+      "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+      ], 
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz", 
+      "version": "8.2.0"
+    }    
+ ],
+  "toolchain-m68k-elf-current": [
+    {
+      "sha1": "ffe7f5ea1b88a08841637fb3c57079647dc6f538", 
+      "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+      ], 
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz", 
+      "version": "9.2.0"
+    },
+    {
+      "sha1": "204f3b66c1973d7d19733ef2123a08b7ba4219bb", 
+      "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+      ], 
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz", 
+      "version": "8.3.0"
+    },
+    {
+      "sha1": "393562ed3ac716346f01af491065c01bef8dd409", 
+      "system": [
+        "windows",
+        "windows_amd64",
+        "windows_x86"
+      ], 
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz", 
+      "version": "8.2.0"
     }
  ]
 }
