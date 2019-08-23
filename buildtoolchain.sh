@@ -439,4 +439,4 @@ cd $HOSTINSTALLPATH ;tar cvzf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.g
 sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
 fi
-
+#if deploy
