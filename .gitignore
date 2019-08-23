@@ -1,0 +1,7 @@
+cross-toolchain
+toolchain-*-current
+buildlog.txt
+*.o
+*.map
+*.lst
+*.elf
