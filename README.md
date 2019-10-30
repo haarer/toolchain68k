@@ -8,7 +8,7 @@ The used toolchain versions are
  * gcc 9.2.0
  * binutils 2.32 (with avr size patch for avr target)
  * gdb 8.3
- * newlib 3.1.0
+ * newlib 3.1.0   (with a patch to determine if long double is the same size as double, needed for m68k-elf )
  * avr-libc 2.0.0
  * avrdude 6.3
  * texane/stlink (pulled from github)

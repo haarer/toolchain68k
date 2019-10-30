@@ -280,6 +280,14 @@ else
 
     prepare_source ftp://sources.redhat.com/pub/newlib $LIBCVER tar.gz
 
+    log_msg "patching newlib to automatically determine _LDBL_EQ_DBL"
+    tmpdir=`pwd`
+    cd ..
+    echo `pwd`
+    patch  -p1 -i $M68KBUILD/../newlib.patch
+    cd $tmpdir
+
+
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
     LIBCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
