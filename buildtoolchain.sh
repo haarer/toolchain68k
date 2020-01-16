@@ -28,11 +28,11 @@
 LOGFILE="`pwd`/buildlog.txt"
 
 #set the number of parallel makes
-MAKEJOBS=16
+MAKEJOBS=4
 
 #set this to the desired target architecture
-#TARGETARCHITECTURE=arm-none-eabi
-TARGETARCHITECTURE=m68k-elf
+TARGETARCHITECTURE=arm-none-eabi
+#TARGETARCHITECTURE=m68k-elf
 #TARGETARCHITECTURE=avr
 
 #set this according to requirements: 
@@ -215,7 +215,7 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.32"
+BINUTILS="binutils-2.33.1"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -302,7 +302,7 @@ fi
 #---------------------------------------------------------------------------------
 #build gdb
 #sudo apt-get install ncurses-dev
-GDBVER="gdb-8.3"
+GDBVER="gdb-8.3.1"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz

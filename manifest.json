@@ -1,98 +1,108 @@
 {
   "toolchain-avr-current": [
     {
-      "sha1": "e3f267d2972bc440f9769db615b0b1e608e39898", 
+      "sha1": "e3f267d2972bc440f9769db615b0b1e608e39898",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-avr-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz",
       "version": "9.2.0"
     },
     {
-      "sha1": "4e53d75ddbaf9c9bfaa19cd617fc76705566675d", 
+      "sha1": "4e53d75ddbaf9c9bfaa19cd617fc76705566675d",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz",
       "version": "8.3.0"
     },
     {
-      "sha1": "1b8886e8cd0bbd114658e08e5688841d5f6738db", 
+      "sha1": "1b8886e8cd0bbd114658e08e5688841d5f6738db",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-avr-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz",
       "version": "8.2.0"
     },
     {
-      "sha1": "6c383d5e259ff60dfa4594bbb2218a3e04564855", 
+      "sha1": "6c383d5e259ff60dfa4594bbb2218a3e04564855",
       "system": [
         "linux_x86_64"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-Debian-gcc-8.3.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-avr-Debian-gcc-8.3.0.tar.gz",
       "version": "8.3.0"
     },
     {
-      "sha1": "3cfc7e19f10de79bc154948f6742294bb0b7baab", 
+      "sha1": "3cfc7e19f10de79bc154948f6742294bb0b7baab",
       "system": [
         "linux_x86_64"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-avr-Debian-gcc-9.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-avr-Debian-gcc-9.2.0.tar.gz",
       "version": "9.2.0"
     }
- ],
+  ],
   "toolchain-m68k-elf-current": [
     {
-      "sha1": "ffe7f5ea1b88a08841637fb3c57079647dc6f538", 
+      "sha1": "ffe7f5ea1b88a08841637fb3c57079647dc6f538",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz",
       "version": "9.2.0"
     },
     {
-      "sha1": "204f3b66c1973d7d19733ef2123a08b7ba4219bb", 
+      "sha1": "204f3b66c1973d7d19733ef2123a08b7ba4219bb",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.3.0.tar.gz",
       "version": "8.3.0"
     },
     {
-      "sha1": "393562ed3ac716346f01af491065c01bef8dd409", 
+      "sha1": "393562ed3ac716346f01af491065c01bef8dd409",
       "system": [
         "windows",
         "windows_amd64",
         "windows_x86"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-8.2.0.tar.gz",
       "version": "8.2.0"
     },
     {
-      "sha1": "411d7d90456dbb1957d23b1a772e1b1e96b51a08", 
+      "sha1": "411d7d90456dbb1957d23b1a772e1b1e96b51a08",
       "system": [
         "linux_x86_64"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-Debian-gcc-8.3.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-m68k-elf-Debian-gcc-8.3.0.tar.gz",
       "version": "8.3.0"
     },
     {
-      "sha1": "d5f5cde1f1ef48ac79ece16ac95b1c95109b2d58", 
+      "sha1": "d5f5cde1f1ef48ac79ece16ac95b1c95109b2d58",
       "system": [
         "linux_x86_64"
-      ], 
-      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc910/toolchain-m68k-elf-Debian-gcc-9.2.0.tar.gz", 
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-m68k-elf-Debian-gcc-9.2.0.tar.gz",
       "version": "9.2.0"
     }
- ]
+  ],
+  "toolchain-arm-none-eabi-current": [
+    {
+      "sha1": "245374cc94047d1e40dd52d25307ef8f52f0b7b4",
+      "system": [
+        "linux_x86_64"
+      ],
+      "url": "https://github.com/haarer/toolchain68k/releases/download/gcc920/toolchain-arm-none-eabi-Debian-gcc-9.2.0.tar.gz",
+      "version": "9.2.0"
+    }
+  ]
 }
