@@ -1,13 +1,13 @@
 # toolchain68k
 Main Goal:
-Build a toolchain for 68k, avr and cortex-m3 and cortex-m4  cross developement using recent compilers and libraries.
+Build a toolchain for 68k, avr and cortex-m3 and cortex-m4 cross developement using recent compilers and libraries.
 
 This supports development for various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
 The used toolchain versions are
  * gcc 9.2.0
- * binutils 2.32 (with avr size patch for avr target)
- * gdb 8.3
+ * binutils 2.33.1 (with avr size patch for avr target)
+ * gdb 8.3.1
  * newlib 3.1.0   (with a patch to determine if long double is the same size as double, needed for m68k-elf )
  * avr-libc 2.0.0
  * avrdude 6.3
@@ -23,7 +23,12 @@ The script works on Windows 10 with MSYS2 and on Debian 9. It may work on other 
 The toolchains are either installed into a directory or packaged into archives suitable for the platform ide.
 The archives can be used with eclipse or with make files as well - just unpack them.
 
-The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use. See https://github.com/haarer/platform-atmelavr .
+The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use. 
+
+The Platform URL to be used for platformio projects are
+ * https://github.com/haarer/platform-atmelavr.git
+ * https://github.com/haarer/platform-m68k.git
+ * https://github.com/haarer/platform-ststm32.git
 
 There are example projects for m68k and avr.
 
