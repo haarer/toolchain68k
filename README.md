@@ -18,7 +18,7 @@ The build script can build for the following target architectures
  * avr
  * arm-none-eabi
 
-The script works on Windows 10 with MSYS2 and on Debian 9. It may work on other platforms but i dont run any tests.
+The script works on Windows 10 with MSYS2 and on Debian 10. It may work on other platforms but i dont run any tests.
 
 The toolchains are either installed into a directory or packaged into archives suitable for the platform ide.
 The archives can be used with eclipse or with make files as well - just unpack them.
