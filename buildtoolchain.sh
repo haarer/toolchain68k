@@ -28,7 +28,7 @@
 LOGFILE="`pwd`/buildlog.txt"
 
 #set the number of parallel makes
-MAKEJOBS=4
+MAKEJOBS=16
 
 #set this to the desired target architecture
 TARGETARCHITECTURE=arm-none-eabi
@@ -428,7 +428,23 @@ cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
 }
 EOFWINDOWSVARIANT
 
+elif [[ $OS = Rasp* ]]; then echo "on raspian"
+cat >$HOSTINSTALLPATH/package.json <<EOFRASPIVARIANT
+{
+    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+    "name": "toolchain-$TARGETARCHITECTURE-current",
+    "system": [
+        "linux_armv6l",
+        "linux_armv7l",
+        "linux_armv8l"
+    ],
+    "url": "https://github.com/haarer/toolchain68k",
+    "version": "$PACKAGEVER"
+}
+EOFRASPIVARIANT
+
 else
+echo "on linux"
 cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
 {
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
@@ -440,10 +456,10 @@ cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
     "version": "$PACKAGEVER"
 }
 EOFLINUXVARIANT
-
 fi
 
-cd $HOSTINSTALLPATH ;tar cvzf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
+log_msg "packaging.."
+cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
 sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
 fi
