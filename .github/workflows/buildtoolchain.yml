@@ -34,6 +34,9 @@ jobs:
       matrix:
         architecture: [avr, arm-none-eabi, m68k-elf]
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,12 +45,8 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: git wget bzip2 tar flex bison unzip diffutils texinfo make gcc pkg-config binutils autoconf
+          install: git mingw-w64-x86_64-toolchain wget bzip2 tar flex bison unzip diffutils texinfo autoconf
           update: true
-      - name: update msys
-        run: |
-          pacman -Quq | grep -v mingw-w64- | xargs pacman -S --needed --noconfirm --noprogressbar
-          pacman -Quq | grep ${MINGW_PACKAGE_PREFIX} | xargs pacman -S --needed --noconfirm --noprogressbar
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh windows  ${{ matrix.architecture }}
