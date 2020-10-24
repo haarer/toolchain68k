@@ -13,9 +13,20 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "recursive"
-      - name: Install dependencies
+
+      - name: Install windows dependencies
+        if: ${{ matrix.os }} == "windows-latest"
+        uses: msys2/setup-msys2@v2
         run: |
-          bash install_req_pkg_${{ matrix.os }}.sh
+          pacman -S --needed git msys2-runtime unzip make tar flex bison diffutils texinfo patch mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git
+        shell: msys2 {0}
+
+      - name: Install linux dependencies
+        if: ${{ matrix.os }} == "ubuntu-latest"
+        run: |
+          apt-get install wget bzip2 git make tar flex bison diffutils texinfo gcc g++ libstdc++-8-dev
+        shell: bash
+
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh
