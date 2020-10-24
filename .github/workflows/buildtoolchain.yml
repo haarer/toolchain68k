@@ -4,8 +4,6 @@ on: [push, pull_request]
 
 jobs:
   buildlinux:
-    strategy:
-      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,8 +22,6 @@ jobs:
           path: toolchain-avr-Debian-gcc-10.2.0.tar.gz
           retention-days: 5    
   buildwindows:
-    strategy:
-      fail-fast: false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -35,8 +31,13 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: git base-devel mingw-w64-x86_64-toolchain
+          install: git wget bzip2 tar flex bison unzip diffutils texinfo patchbase-devel mingw-w64-x86_64-toolchain
           update: true
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          path: toolchain-m68k-elf-MINGW64_NT-10.0-17763-gcc-9.2.0.tar.gz
+          retention-days: 5
