@@ -26,6 +26,10 @@ jobs:
           path: toolchain-${{ matrix.architecture }}-linux-10.2.0.tar.gz
           retention-days: 5    
   buildwindows:
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [avr, arm-none-eabi, m68k-elf]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
