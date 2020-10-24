@@ -20,10 +20,13 @@ jobs:
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh linux  ${{ matrix.architecture }}
+      - name: Build example with toolchain
+        run: |
+          bash runtests.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-linux-10.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-10.2.0.tar.gz
           retention-days: 5    
   buildwindows:
     runs-on: windows-latest
@@ -35,13 +38,16 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: git wget bzip2 tar flex bison unzip diffutils texinfo mingw-w64-x86_64-toolchain
+          install: git wget bzip2 tar flex bison unzip diffutils texinfo make gcc pkg-config binutils autoconf
           update: true
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh windows  ${{ matrix.architecture }}
+      - name: Build example with toolchain
+        run: |
+          bash runtests.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-windows-10.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-windows-gcc-10.2.0.tar.gz
           retention-days: 5
