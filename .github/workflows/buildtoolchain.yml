@@ -44,6 +44,10 @@ jobs:
           msystem: MINGW64
           install: git wget bzip2 tar flex bison unzip diffutils texinfo make gcc pkg-config binutils autoconf
           update: true
+      - name: update msys
+        run: |
+          pacman -Quq | grep -v mingw-w64- | xargs pacman -S --needed --noconfirm --noprogressbar
+          pacman -Quq | grep ${MINGW_PACKAGE_PREFIX} | xargs pacman -S --needed --noconfirm --noprogressbar
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh windows  ${{ matrix.architecture }}
