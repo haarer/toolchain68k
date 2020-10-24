@@ -5,7 +5,10 @@
 # set the number of make jobs as appropriate for build machine
 # set the path after installation : export PATH=/opt/crosschain/bin:$PATH
 
-# tested on host platforms : msys2 64bit on windows 10, debian 8
+# tested on host platforms : msys2 64bit on windows 10, debian 10.6
+
+# usage :
+#    pass operating system as first parameter "linux" or "windows"
 
 # links:
 #   http://www.mikrocontroller.net/articles/GCC_M68k
@@ -25,16 +28,34 @@
 # some sh versions dont like the () after functions - call the script using bash helps
 #
 
+OS=$1
+
+if [[ "$OS" = "windows" || "$OS" = "linux"  ]]; then
+  echo ""
+else
+  echo "os not supported $OS ! use one of linux or windows"
+  exit 1
+fi
+
+#set this to the desired target architecture
+#TARGETARCHITECTURE=arm-none-eabi
+#TARGETARCHITECTURE=m68k-elf
+#TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=$2
+if [[ "$TARGETARCHITECTURE" = "arm-none-eabi" || "$TARGETARCHITECTURE" = "m68k-elf"  || "$TARGETARCHITECTURE" = "avr" ]]; then
+  echo ""
+else
+  echo "architecture not supported $TARGETARCHITECTURE ! use one of arm-none-eabi, m68k-elf or avr"
+  exit 1
+fi
+
+
 LOGFILE="`pwd`/buildlog.txt"
 
 #set the number of parallel makes
 MAKEJOBS=16
 
-#set this to the desired target architecture
-#TARGETARCHITECTURE=arm-none-eabi
-#TARGETARCHITECTURE=m68k-elf
-TARGETARCHITECTURE=avr
-#TARGETARCHITECTURE=$1
+
 
 HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
 
@@ -45,7 +66,7 @@ export LDFLAGS='-s'
 export DEBUG_FLAGS=''
 
 
-if [ "$TARGETARCHITECTURE" == "arm-none-eabi" ]; then
+if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
         MACHINEFLAGS="--with-cpu=cortex-m4 --with-cpu=cortex-m3 --with-fpu=fpv4-sp-d16 --with-float=hard --with-float=softfp 
 -with-float=soft --with-mode=thumb"
 	GCCFLAGS=$MACHINEFLAGS
@@ -58,22 +79,6 @@ fi
 
 export PATH=$HOSTINSTALLPATH/bin:$PATH
 
-function determine_os () {
-	if [ -f /etc/lsb-release ]; then
-	    . /etc/lsb-release 
-	    OS=$DISTRIB_ID
-	    VER=$DISTRIB_RELEASE
-	elif [ -f /usr/bin/lsb_release ]; then
-	    OS=`/usr/bin/lsb_release -is`
-	    VER=`/usr/bin/lsb_release -rs`
-	elif [ -f /etc/debian_version ]; then
-	    OS=Debian  # XXX or Ubuntu??
-	    VER=$(cat /etc/debian_version)
-	else
-	    OS=$(uname -s)
-	    VER=$(uname -r)
-	fi
-}
 
 function log_msg () {
 	local logline="`date` $1"
@@ -175,9 +180,9 @@ function conf_compile_source () {
 # -------------------------------------------------------------------------------------------
 log_msg " start of buildscript"
 
-determine_os
+
 log_msg " building on OS: $OS $VER for target architecture $TARGETARCHITECTURE"
-if [[ $OS = MINGW* ]]; then
+if [[ $OS = windows ]]; then
 	EXECUTEABLESUFFIX=".exe"
 	echo "ouch.. on windows"
 else
@@ -361,7 +366,7 @@ EOFLINUXVARIANT
 fi
 
 log_msg "packaging.."
-cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
-sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
+cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$1-$GCCVER.tar.gz * ; cd ..
+sha1sum toolchain-$TARGETARCHITECTURE-$1-$GCCVER.tar.gz
 
 
