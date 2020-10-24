@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2014-2017, A.Haarer, All rights reserved. LGPLv3
+# Copyright (c) 2014-2020, A.Haarer, All rights reserved. LGPLv3
 
 # build 68k cross toolchain based on gcc
 # set the number of make jobs as appropriate for build machine
@@ -31,21 +31,12 @@ LOGFILE="`pwd`/buildlog.txt"
 MAKEJOBS=16
 
 #set this to the desired target architecture
-TARGETARCHITECTURE=arm-none-eabi
+#TARGETARCHITECTURE=arm-none-eabi
 #TARGETARCHITECTURE=m68k-elf
-#TARGETARCHITECTURE=avr
+TARGETARCHITECTURE=avr
+#TARGETARCHITECTURE=$1
 
-#set this according to requirements: 
-# "package" builds platformio compatible toolchain archives
-# "install" deploys to /opt/crosschain. make sure, you are allowed to write !
-DEPLOY=package
-#DEPLOY=install
-
-if [ "$DEPLOY" == "package" ]; then
-    HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
-else
-    HOSTINSTALLPATH="/opt/crosschain"
-fi
+HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
 
 
 export CFLAGS='-O2 -pipe'
@@ -62,8 +53,6 @@ if [ "$TARGETARCHITECTURE" == "arm-none-eabi" ]; then
 	LIBCFLAGS=$MACHINEFLAGS
 	GDBFLAGS=$MACHINEFLAGS
 fi
-
-
 
 
 
@@ -92,10 +81,6 @@ function log_msg () {
 	echo $logline
 }
 
-#todo, consider this
-#fullfile="stuff.tar.gz"
-#fileExt=${fullfile#*.}
-#fileName=${fullfile%*.$fileExt}
 
 function prepare_source () {
     local BASEURL=$1
@@ -215,7 +200,7 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.33.1"
+BINUTILS="binutils-2.35"
 
 prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
@@ -228,6 +213,9 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 fi
 
 BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
+
+#LDFLAGS=-Wl,-rpath=$(ORIGIN)/usr/lib/binutils/avr/git,--enable-new-dtags
+
 conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
 
 cd $M68KBUILD
@@ -236,7 +224,7 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-9.2.0"
+GCCVER="gcc-10.2.0"
 
 prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
@@ -301,8 +289,7 @@ fi
 
 #---------------------------------------------------------------------------------
 #build gdb
-#sudo apt-get install ncurses-dev
-GDBVER="gdb-8.3.1"
+GDBVER="gdb-10.1"
 
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
@@ -315,96 +302,11 @@ cd $M68KBUILD
 
 
 
-# musasim bauen
-# https://code.google.com/p/musasim/
-#apt-get install libsdl2-dev
-#apt-get install libargtable2-dev
-#apt-get install libfontconfig-dev
-#apt-get install libelf-dev
-
-# dafür braucht man auch libsdl2 ttf die bei debian nicht im repo ist - suxx
-#wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.12.tar.gz
-#tar xvzf SDL2_ttf-2.0.12.tar.gz
-#cd SDL2_ttf-2.0.12/
-#./configure
-#make
-#sudo make install
 
 
-#git clone https://code.google.com/p/musasim/
-#cd muasim
-#./bootstrap.sh
-#cd musasim
-## vorher in verzeichnis ui das makefile fixen, es fehlt `pkg-config --cflags SDL2_ttf` bei den cflags
-#make 
-
-
-if [ "$TARGETARCHITECTURE" = "avr" ]; then
-
-
-    #---------------------------------------------------------------------------------
-    #build avrdude.
-    #   On windows builds, avrdude needs the libusb or libftdi for certain programmers
-    #   but not for flashing an arduino using the usb cable using the avrdude wiring configuration.
-    #   see make file of avr example
-
-    log_msg ">>>> build avrdude"
-    AVRDUDEVER="avrdude-6.3"
-
-    prepare_source http://download.savannah.gnu.org/releases/avrdude $AVRDUDEVER tar.gz
-
-    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
-
-    conf_compile_source avrdude "$HOSTINSTALLPATH/$TARGETARCHITECTURE/bin/avrdude" " --prefix=$HOSTINSTALLPATH/"
-
-    cd $M68KBUILD
-
-fi
-
-
-if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
-
-
-    #---------------------------------------------------------------------------------
-    #build texane stutils.
-    #   On windows builds,  needs the libusb
-    #   see make file of arm-none-eabi example
-
-    log_msg ">>>> build texane/stlink"
-    STLINKVER="stlink"
-
-
-prepare_source https://github.com/texane/stlink.git $STLINKVER git
-
-    if [ ! -f /opt/$TARGETARCHITECTURE/bin/st-flash.exe ]; then
-
-        log_msg "building $SOURCEPACKAGE"
-        cd ..
-        if [ $OS = "Debian" ] || [ $OS = "Fedora" ]; then # on linux install stlink into system
-        cmake . -Bcross-chain-$TARGETARCHITECTURE-obj
-        else
-        cmake . -DCMAKE_INSTALL_PREFIX:PATH=$HOSTINSTALLPATH -Bcross-chain-$TARGETARCHITECTURE-obj
-        fi
-        cd cross-chain-$TARGETARCHITECTURE-obj
-        make
-        log_msg "building $SOURCEPACKAGE finished"
-
-
-        log_msg "install $SOURCEPACKAGE"
-        install_package
-        log_msg "install $SOURCEPACKAGE finished"
-
-    else
-        log_msg "compiling and install texane/stlink skipped"
-    fi
-
-    cd $M68KBUILD
-
-fi
 
 #---------------------------------------------------------------------------------
-#build pio package if required
-if [ "$DEPLOY" == "package" ]; then
+#build pio package
 
 #works only in bash
 PACKAGEVER=${GCCVER/#gcc-}
@@ -462,5 +364,4 @@ log_msg "packaging.."
 cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
 sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
-fi
-#if deploy
+

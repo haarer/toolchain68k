@@ -1,0 +1,21 @@
+name: Examples
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-16.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+      - name: Install dependencies
+        run: |
+          bash install_req_pkg_debian.sh
+      - name: Build toolchain
+        run: |
+          bash buildtoolchain.sh
