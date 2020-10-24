@@ -3,31 +3,40 @@ name: Examples
 on: [push, pull_request]
 
 jobs:
-  build:
+  buildlinux:
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"        
+      - name: Install dependencies
+        run: |
+          apt-get install wget bzip2 git make tar flex bison diffutils texinfo gcc g++ libstdc++-8-dev
+        shell: bash
+      - name: Build toolchain
+        run: |
+          bash buildtoolchain.sh
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          path: toolchain-avr-Debian-gcc-10.2.0.tar.gz
+          retention-days: 5    
+  buildwindows:
+    strategy:
+      fail-fast: false
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: "recursive"
-
       - name: Install prepare msys
-        if: ${{ matrix.os }} == "windows-latest"
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
           install: git base-devel mingw-w64-x86_64-toolchain
           update: true
-        
-      - name: Install linux dependencies
-        if: ${{ matrix.os }} == "ubuntu-latest"
-        run: |
-          apt-get install wget bzip2 git make tar flex bison diffutils texinfo gcc g++ libstdc++-8-dev
-        shell: bash
-
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh
