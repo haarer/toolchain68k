@@ -316,7 +316,7 @@ cd $M68KBUILD
 #works only in bash
 PACKAGEVER=${GCCVER/#gcc-}
 
-if [[ $OS = MINGW* ]]; then EXECUTEABLESUFFIX=".exe" echo "on windows, copy mingw dlls"
+if [[ $OS = windows* ]]; then EXECUTEABLESUFFIX=".exe" echo "on windows, copy mingw dlls"
 for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll
 do
     cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
