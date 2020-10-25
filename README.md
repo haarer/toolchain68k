@@ -1,17 +1,16 @@
 # toolchain68k
 Main Goal:
 Build a toolchain for 68k, avr and cortex-m3 and cortex-m4 cross developement using recent compilers and libraries.
+![Examples](https://github.com/haarer/toolchain68k/workflows/Examples/badge.svg)
 
 This supports development for various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
 The used toolchain versions are
- * gcc 9.2.0
- * binutils 2.33.1 (with avr size patch for avr target)
- * gdb 8.3.1
+ * gcc 10.2.0
+ * binutils 2.35 (with avr size patch for avr target)
+ * gdb 10.1
  * newlib 3.1.0   (with a patch to determine if long double is the same size as double, needed for m68k-elf )
  * avr-libc 2.0.0
- * avrdude 6.3
- * texane/stlink (pulled from github)
 
 The build script can build for the following target architectures
  * m68k-elf
@@ -20,10 +19,10 @@ The build script can build for the following target architectures
 
 The script works on Windows 10 with MSYS2 and on Debian 10. It may work on other platforms but i dont run any tests.
 
-The toolchains are either installed into a directory or packaged into archives suitable for the platform ide.
+The toolchains are packaged into archives suitable for the platformio development environment (https://platformio.org).
 The archives can be used with eclipse or with make files as well - just unpack them.
 
-The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use. 
+The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use.
 
 The Platform URL to be used for platformio projects are
  * https://github.com/haarer/platform-atmelavr.git
@@ -59,7 +58,7 @@ git clone https://github.com/haarer/toolchain68k.git
 Install the required packages for msys
 ```
 cd toolchain68k
-sh install_req_pkg_msys.sh
+sh install_req_pkg_windows-latest.sh
 ```
 
 # Prepare Build Environment for Debian 8
@@ -74,7 +73,7 @@ git clone https://github.com/haarer/toolchain68k.git
 Install the required packages for msys.
 ```
 cd toolchain68k
-bash install_req_pkg_debian.sh
+bash install_req_pkg_ubuntu-latest.sh
 ```
 
 # Prepare Build Environment for Fedora
@@ -92,35 +91,28 @@ sh install_req_pkg_fedora.sh
 ```
 
 # Building and Installing of the Toolchain    
-Set the wanted target architecture in the build script by commenting out the unwanted architecture. It is also possible to add Target specific build options, see the arm-none-eabi Target how to do this.
+Set the wanted target architecture by passing it to the build script as second parameter. In order to change or add target specific build options, see the arm-none-eabi target in the script how to do this.
 ```
-#TARGETARCHITECTURE=avr
-TARGETARCHITECTURE=m68k-elf
-```
-Select the method of deployment - either as package or install.
-
-```
-DEPLOY=package
-#DEPLOY=install
-```
-Start the build script.
-```
-bash   buildtoolchain.sh
+bash buildtoolchain linux m68k-elf
 ```
 
 The script obtains the sources, unpacks them and builds the tools of the toolchain.
 
 The progress of the build is written to a logfile: ```buildlog.txt```
 
-Note that the toolchain used to be /opt/crosschain, now the default is to create platformio toolchain packages. 
+Note that the toolchain script no longer "installs" the toolchain, it always creates platformio toolchain packages. 
 
 # Testing the Toolchain
-Add the path to the binaries 
-
-This depends on $HOSTINSTALLPATH in the script)
+Add the path to the binaries and run gcc
 
 ```
-export PATH=$PATH:/opt/crosschain/bin
+export PATH=$PATH:<your toolchain dir>/bin:
+<architecture>-gcc --version
+```
+for example
+```
+export PATH=$PATH://home/mac/toolchain68k/toolchain-avr-current/bin/bin:
+avr-gcc --version
 ```
 
 ### compile one of the 68k toolchain examples
