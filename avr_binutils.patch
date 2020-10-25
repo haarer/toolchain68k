@@ -1,55 +1,37 @@
---- binutils/size.c	2007-08-06 13:56:14.000000000 -0600
-+++ binutils/size.c	2007-09-13 09:13:10.281250000 -0600
-@@ -36,10 +36,31 @@
+diff -Naur binutils/size.c ../binutils-2.35-avr/binutils/size.c
+--- binutils/size.c	2020-07-24 11:12:19.000000000 +0200
++++ ../binutils-2.35-avr/binutils/size.c	2020-10-25 11:09:24.262523833 +0100
+@@ -34,8 +34,8 @@
  #include "getopt.h"
  #include "bucomm.h"
  
 -#ifndef BSD_DEFAULT
 -#define BSD_DEFAULT 1
-+typedef enum
-+{
-+    format_sysv = 0,
-+    format_bsd = 1,
-+    format_avr = 2,
-+} format_type_t;
-+
-+
-+/* Set the default format. */
-+#define FORMAT_DEFAULT_SYSV 0
-+#define FORMAT_DEFAULT_BSD 1
-+#define FORMAT_DEFAULT_AVR 0
-+
-+#if FORMAT_DEFAULT_SYSV
-+    #define FORMAT_DEFAULT format_sysv
-+    #define FORMAT_NAME "sysv"
-+#elif FORMAT_DEFAULT_BSD
-+    #define FORMAT_DEFAULT format_bsd
-+    #define FORMAT_NAME "berkeley"
-+#elif FORMAT_DEFAULT_AVR
-+    #define FORMAT_DEFAULT format_avr
-+    #define FORMAT_NAME "avr"
++#ifndef AVR_DEFAULT
++#define AVR_DEFAULT 1
  #endif
  
-+
  /* Program options.  */
- 
- static enum
-@@ -48,9 +69,8 @@ static enum
-   }
- radix = decimal;
- 
--/* 0 means use AT&T-style output.  */
--static int berkeley_format = BSD_DEFAULT;
- 
-+format_type_t format = FORMAT_DEFAULT;
- static int show_version = 0;
- static int show_help = 0;
- static int show_totals = 0;
-@@ -64,6 +84,246 @@ static bfd_size_type total_textsize;
+@@ -51,11 +51,14 @@
+   {
+    FORMAT_BERKLEY,
+    FORMAT_SYSV,
+-   FORMAT_GNU
++   FORMAT_GNU,
++   FORMAT_AVR
+   };
+ static enum output_format selected_output_format =
+ #if BSD_DEFAULT
+   FORMAT_BERKLEY
++#elif AVR_DEFAULT
++  FORMAT_AVR
+ #else
+   FORMAT_SYSV
+ #endif
+@@ -74,6 +77,246 @@
  /* Program exit status.  */
  static int return_code = 0;
  
-+
 +/* AVR Size specific stuff */
 +
 +#define AVR64 64UL
@@ -140,7 +122,7 @@
 +	{"atmega64c1",    AVR64K,  AVR4K,  AVR2K},
 +	{"atmega64hve",   AVR64K,  AVR4K,  AVR1K},
 +	{"atmega64m1",    AVR64K,  AVR4K,  AVR2K},
-+   {"m3000",         AVR64K,  AVR4K,  0UL},
++  {"m3000",         AVR64K,  AVR4K,  0UL},
 +
 +	{"atmega406",     AVR40K,  AVR2K,  AVR512},
 +
@@ -171,7 +153,7 @@
 +	{"atmega3290p",   AVR32K,  AVR2K,  AVR1K},
 +	{"atmega32hvb",   AVR32K,  AVR2K,  AVR1K},
 +	{"atmega32c1",    AVR32K,  AVR2K,  AVR1K},
-+   {"atmega32hvb",   AVR32K,  AVR2K,  AVR1K},
++  {"atmega32hvb",   AVR32K,  AVR2K,  AVR1K},
 +	{"atmega32m1",    AVR32K,  AVR2K,  AVR1K},
 +	{"atmega32u2",    AVR32K,  AVR1K,  AVR1K},
 +	{"atmega32u4",    AVR32K,  2560UL, AVR1K},
@@ -206,7 +188,7 @@
 +	{"atmega169pa",   AVR16K,  AVR1K,  AVR512},
 +	{"atmega16hva",   AVR16K,  768UL,  AVR256},
 +	{"atmega16hva2",  AVR16K,  AVR1K,  AVR256},
-+   {"atmega16hvb",   AVR16K,  AVR1K,  AVR512},
++  {"atmega16hvb",   AVR16K,  AVR1K,  AVR512},
 +	{"atmega16m1",    AVR16K,  AVR1K,  AVR512},
 +	{"atmega16u2",    AVR16K,  AVR512, AVR512},
 +	{"atmega16u4",    AVR16K,  1280UL, AVR512},
@@ -260,7 +242,7 @@
 +	{"at90s2323",     AVR2K,   AVR128, AVR128},
 +	{"at90s2333",     AVR2K,   224UL,  AVR128},
 +	{"at90s2343",     AVR2K,   AVR128, AVR128},
-+   {"attiny20",      AVR2K,   AVR128, 0UL},
++  {"attiny20",      AVR2K,   AVR128, 0UL},
 +	{"attiny22",      AVR2K,   224UL,  AVR128},
 +	{"attiny2313",    AVR2K,   AVR128, AVR128},
 +	{"attiny2313a",   AVR2K,   AVR128, AVR128},
@@ -271,51 +253,49 @@
 +	{"attiny261",     AVR2K,   AVR128, AVR128},
 +	{"attiny261a",    AVR2K,   AVR128, AVR128},
 +	{"attiny28",      AVR2K,   0UL,    0UL},
-+   {"attiny40",      AVR2K,   AVR256, 0UL},
++  {"attiny40",      AVR2K,   AVR256, 0UL},
 +
 +	{"at90s1200",     AVR1K,   0UL,    AVR64},
-+   {"attiny9",       AVR1K,   32UL,   0UL},
-+   {"attiny10",      AVR1K,   32UL,   0UL},
++  {"attiny9",       AVR1K,   32UL,   0UL},
++  {"attiny10",      AVR1K,   32UL,   0UL},
 +	{"attiny11",      AVR1K,   0UL,    AVR64},
 +	{"attiny12",      AVR1K,   0UL,    AVR64},
 +	{"attiny13",      AVR1K,   AVR64,  AVR64},
 +	{"attiny13a",     AVR1K,   AVR64,  AVR64},
 +	{"attiny15",      AVR1K,   0UL,    AVR64},
 +
-+   {"attiny4",       AVR512,  32UL,   0UL},
-+   {"attiny5",       AVR512,  32UL,   0UL},
++  {"attiny4",       AVR512,  32UL,   0UL},
++  {"attiny5",       AVR512,  32UL,   0UL},
 +};
 +
 +static char *avrmcu = NULL;
 +
 +
++
  static char *target = NULL;
  
  /* Forward declarations.  */
-@@ -79,7 +337,8 @@ usage (FILE *stream, int status)
+@@ -89,8 +332,9 @@
    fprintf (stream, _(" Displays the sizes of sections inside binary files\n"));
    fprintf (stream, _(" If no input file(s) are specified, a.out is assumed\n"));
    fprintf (stream, _(" The options are:\n\
--  -A|-B     --format={sysv|berkeley}  Select output style (default is %s)\n\
-+  -A|-B|-C  --format={sysv|berkeley|avr}  Select output style (default is %s)\n\
-+            --mcu=<avrmcu>            MCU name for AVR format only\n\
+-  -A|-B|-G  --format={sysv|berkeley|gnu}  Select output style (default is %s)\n\
++  -A|-B|-G|-C  --format={sysv|berkeley|gnu|avr}  Select output style (default is %s)\n\
    -o|-d|-x  --radix={8|10|16}         Display numbers in octal, decimal or hex\n\
++            --mcu=<avrmcu>            MCU name for AVR format only\n\
    -t        --totals                  Display the total sizes (Berkeley only)\n\
              --common                  Display total size for *COM* syms\n\
-@@ -88,11 +337,7 @@ usage (FILE *stream, int status)
-   -h        --help                    Display this information\n\
-   -v        --version                 Display the program's version\n\
+             --target=<bfdname>        Set the binary file format\n\
+@@ -100,6 +344,8 @@
  \n"),
--#if BSD_DEFAULT
--  "berkeley"
--#else
--  "sysv"
--#endif
-+FORMAT_NAME
- );
-   list_supported_targets (program_name, stream);
-   if (REPORT_BUGS_TO[0] && status == 0)
-@@ -103,6 +359,7 @@ usage (FILE *stream, int status)
+ #if BSD_DEFAULT
+   "berkeley"
++#elif AVR_DEFAULT
++  "avr"
+ #else
+   "sysv"
+ #endif
+@@ -113,6 +359,7 @@
  #define OPTION_FORMAT (200)
  #define OPTION_RADIX (OPTION_FORMAT + 1)
  #define OPTION_TARGET (OPTION_RADIX + 1)
@@ -323,42 +303,34 @@
  
  static struct option long_options[] =
  {
-@@ -110,6 +368,7 @@ static struct option long_options[] =
+@@ -120,6 +367,7 @@
    {"format", required_argument, 0, OPTION_FORMAT},
    {"radix", required_argument, 0, OPTION_RADIX},
    {"target", required_argument, 0, OPTION_TARGET},
-+  {"mcu", required_argument, 0, 203},
++  {"mcu", required_argument, 0, OPTION_MCU},
    {"totals", no_argument, &show_totals, 1},
    {"version", no_argument, &show_version, 1},
    {"help", no_argument, &show_help, 1},
-@@ -141,7 +399,7 @@ main (int argc, char **argv)
-   bfd_init ();
+@@ -153,7 +401,7 @@
+     fatal (_("fatal error: libbfd ABI mismatch"));
    set_default_bfd_target ();
  
--  while ((c = getopt_long (argc, argv, "ABHhVvdfotx", long_options,
-+  while ((c = getopt_long (argc, argv, "ABCHhVvdfotx", long_options,
+-  while ((c = getopt_long (argc, argv, "ABGHhVvdfotx", long_options,
++  while ((c = getopt_long (argc, argv, "ABCGHhVvdfotx", long_options,
  			   (int *) 0)) != EOF)
      switch (c)
        {
-@@ -150,11 +409,15 @@ main (int argc, char **argv)
- 	  {
- 	  case 'B':
- 	  case 'b':
--	    berkeley_format = 1;
-+	    format = format_bsd;
+@@ -172,12 +420,20 @@
+ 	  case 'g':
+ 	    selected_output_format = FORMAT_GNU;
  	    break;
- 	  case 'S':
- 	  case 's':
--	    berkeley_format = 0;
-+	    format = format_sysv;
-+	    break;
 +	  case 'A':
 +	  case 'a':
-+	    format = format_avr;
- 	    break;
++	    selected_output_format = FORMAT_AVR;
++	    break;
  	  default:
  	    non_fatal (_("invalid argument to --format: %s"), optarg);
-@@ -162,6 +424,10 @@ main (int argc, char **argv)
+ 	    usage (stderr, 1);
  	  }
  	break;
  
@@ -369,36 +341,21 @@
        case OPTION_TARGET:
  	target = optarg;
  	break;
-@@ -190,11 +457,14 @@ main (int argc, char **argv)
- 	break;
- 
-       case 'A':
--	berkeley_format = 0;
-+	format = format_sysv;
- 	break;
-       case 'B':
--	berkeley_format = 1;
-+	format = format_bsd;
+@@ -214,6 +470,9 @@
+       case 'G':
+ 	selected_output_format = FORMAT_GNU;
  	break;
 +      case 'C':
-+    format = format_avr;
-+    break;
++	selected_output_format = FORMAT_AVR;
++	break;
        case 'v':
        case 'V':
  	show_version = 1;
-@@ -240,7 +509,7 @@ main (int argc, char **argv)
-     for (; optind < argc;)
-       display_file (argv[optind++]);
- 
--  if (show_totals && berkeley_format)
-+  if (show_totals && format == format_bsd)
-     {
-       bfd_size_type total = total_textsize + total_datasize + total_bsssize;
- 
-@@ -599,13 +869,117 @@ print_sysv_format (bfd *file)
+@@ -656,13 +915,118 @@
    printf ("\n\n");
  }
  
++
 +
 +static avr_device_t *
 +avr_find_device (void)
@@ -417,8 +374,6 @@
 +  }
 +  return (NULL);
 +}
-+
-+
 +
 +static void
 +print_avr_format (bfd *file)
@@ -445,17 +400,17 @@
 +  }
 +
 +  if ((section = bfd_get_section_by_name (file, ".data")) != NULL)
-+    my_datasize = bfd_section_size (file, section);
++    my_datasize = bfd_section_size ( section);
 +  if ((section = bfd_get_section_by_name (file, ".text")) != NULL)
-+    my_textsize = bfd_section_size (file, section);
++    my_textsize = bfd_section_size ( section);
 +  if ((section = bfd_get_section_by_name (file, ".bss")) != NULL)
-+    my_bsssize = bfd_section_size (file, section);
++    my_bsssize = bfd_section_size ( section);
 +  if ((section = bfd_get_section_by_name (file, ".bootloader")) != NULL)
-+    bootloadersize = bfd_section_size (file, section);
++    bootloadersize = bfd_section_size ( section);
 +  if ((section = bfd_get_section_by_name (file, ".noinit")) != NULL)
-+    noinitsize = bfd_section_size (file, section);
++    noinitsize = bfd_section_size ( section);
 +  if ((section = bfd_get_section_by_name (file, ".eeprom")) != NULL)
-+    eepromsize = bfd_section_size (file, section);
++    eepromsize = bfd_section_size ( section);
 +  
 +  bfd_size_type text = my_textsize + my_datasize + bootloadersize;
 +  bfd_size_type data = my_datasize + my_bsssize + noinitsize;
@@ -494,27 +449,230 @@
 +}
 +
 +
++
  static void
  print_sizes (bfd *file)
  {
    if (show_common)
      calculate_common_size (file);
--  if (berkeley_format)
--    print_berkeley_format (file);
--  else
+-  if (selected_output_format == FORMAT_SYSV)
 -    print_sysv_format (file);
-+  switch (format)
+-  else
+-    print_berkeley_or_gnu_format (file);
++  switch (selected_output_format)
 +  {
-+    case format_sysv:
++    case  FORMAT_SYSV :
 +      print_sysv_format (file);
-+      break;
-+    case format_bsd:
-+      print_berkeley_format (file);
-+      break;
-+    case format_avr:
++    break;
++
++    case FORMAT_AVR:
++      print_avr_format(file);
++    break;
++
 +    default:
-+      print_avr_format (file);
-+      break;
++      print_berkeley_or_gnu_format (file);
++    break;
 +  }
  }
-
+diff -Naur binutils/size.c.rej ../binutils-2.35-avr/binutils/size.c.rej
+--- binutils/size.c.rej	1970-01-01 01:00:00.000000000 +0100
++++ ../binutils-2.35-avr/binutils/size.c.rej	2020-10-25 11:09:24.358525068 +0100
+@@ -0,0 +1,198 @@
++--- binutils/size.c	2007-08-06 13:56:14.000000000 -0600
+++++ binutils/size.c	2007-09-13 09:13:10.281250000 -0600
++@@ -69,9 +90,8 @@ static enum
++   }
++ radix = decimal;
++ 
++-/* 0 means use AT&T-style output.  */
++-static int berkeley_format = BSD_DEFAULT;
++ 
+++format_type_t format = FORMAT_DEFAULT;
++ static int show_version = 0;
++ static int show_help = 0;
++ static int show_totals = 0;
++@@ -340,7 +598,8 @@ usage (FILE *stream, int status)
++   fprintf (stream, _(" Displays the sizes of sections inside binary files\n"));
++   fprintf (stream, _(" If no input file(s) are specified, a.out is assumed\n"));
++   fprintf (stream, _(" The options are:\n\
++-  -A|-B     --format={sysv|berkeley}  Select output style (default is %s)\n\
+++  -A|-B|-C  --format={sysv|berkeley|avr}  Select output style (default is %s)\n\
+++            --mcu=<avrmcu>            MCU name for AVR format only\n\
++   -o|-d|-x  --radix={8|10|16}         Display numbers in octal, decimal or hex\n\
++   -t        --totals                  Display the total sizes (Berkeley only)\n\
++             --common                  Display total size for *COM* syms\n\
++@@ -400,7 +658,7 @@ main (int argc, char **argv)
++   bfd_init ();
++   set_default_bfd_target ();
++ 
++-  while ((c = getopt_long (argc, argv, "ABHhVvdfotx", long_options,
+++  while ((c = getopt_long (argc, argv, "ABCHhVvdfotx", long_options,
++ 			   (int *) 0)) != EOF)
++     switch (c)
++       {
++@@ -409,11 +668,15 @@ main (int argc, char **argv)
++ 	  {
++ 	  case 'B':
++ 	  case 'b':
++-	    berkeley_format = 1;
+++	    format = format_bsd;
++ 	    break;
++ 	  case 'S':
++ 	  case 's':
++-	    berkeley_format = 0;
+++	    format = format_sysv;
+++	    break;
+++	  case 'A':
+++	  case 'a':
+++	    format = format_avr;
++ 	    break;
++ 	  default:
++ 	    non_fatal (_("invalid argument to --format: %s"), optarg);
++@@ -453,11 +720,14 @@ main (int argc, char **argv)
++ 	break;
++ 
++       case 'A':
++-	berkeley_format = 0;
+++	format = format_sysv;
++ 	break;
++       case 'B':
++-	berkeley_format = 1;
+++	format = format_bsd;
++ 	break;
+++      case 'C':
+++    format = format_avr;
+++    break;
++       case 'v':
++       case 'V':
++ 	show_version = 1;
++@@ -503,7 +772,7 @@ main (int argc, char **argv)
++     for (; optind < argc;)
++       display_file (argv[optind++]);
++ 
++-  if (show_totals && berkeley_format)
+++  if (show_totals && format == format_bsd)
++     {
++       bfd_size_type total = total_textsize + total_datasize + total_bsssize;
++ 
++@@ -862,13 +1132,117 @@ print_sysv_format (bfd *file)
++   printf ("\n\n");
++ }
++ 
+++
+++static avr_device_t *
+++avr_find_device (void)
+++{
+++  unsigned int i;
+++  if (avrmcu != NULL)
+++  {
+++    for (i = 0; i < sizeof(avr) / sizeof(avr[0]); i++)
+++    {
+++      if (strcmp(avr[i].name, avrmcu) == 0)
+++      {
+++        /* Match found */
+++        return (&avr[i]);
+++      }
+++    }
+++  }
+++  return (NULL);
+++}
+++
+++
+++
+++static void
+++print_avr_format (bfd *file)
+++{
+++  char *avr_name = "Unknown";
+++  int flashmax = 0;
+++  int rammax = 0;
+++  int eeprommax = 0;
+++  asection *section; 
+++  bfd_size_type my_datasize = 0;
+++  bfd_size_type my_textsize = 0;
+++  bfd_size_type my_bsssize = 0;
+++  bfd_size_type bootloadersize = 0;
+++  bfd_size_type noinitsize = 0;
+++  bfd_size_type eepromsize = 0;
+++
+++  avr_device_t *avrdevice = avr_find_device();
+++  if (avrdevice != NULL)
+++  {
+++    avr_name = avrdevice->name;
+++    flashmax = avrdevice->flash;
+++    rammax = avrdevice->ram;
+++    eeprommax = avrdevice->eeprom;
+++  }
+++
+++  if ((section = bfd_get_section_by_name (file, ".data")) != NULL)
+++    my_datasize = bfd_section_size (file, section);
+++  if ((section = bfd_get_section_by_name (file, ".text")) != NULL)
+++    my_textsize = bfd_section_size (file, section);
+++  if ((section = bfd_get_section_by_name (file, ".bss")) != NULL)
+++    my_bsssize = bfd_section_size (file, section);
+++  if ((section = bfd_get_section_by_name (file, ".bootloader")) != NULL)
+++    bootloadersize = bfd_section_size (file, section);
+++  if ((section = bfd_get_section_by_name (file, ".noinit")) != NULL)
+++    noinitsize = bfd_section_size (file, section);
+++  if ((section = bfd_get_section_by_name (file, ".eeprom")) != NULL)
+++    eepromsize = bfd_section_size (file, section);
+++  
+++  bfd_size_type text = my_textsize + my_datasize + bootloadersize;
+++  bfd_size_type data = my_datasize + my_bsssize + noinitsize;
+++  bfd_size_type eeprom = eepromsize;
+++  
+++  printf ("AVR Memory Usage\n"
+++          "----------------\n"
+++          "Device: %s\n\n", avr_name);
+++  
+++  /* Text size */
+++  printf ("Program:%8ld bytes", text);
+++  if (flashmax > 0)
+++  {
+++    printf (" (%2.1f%% Full)", ((float)text / flashmax) * 100);
+++  }
+++  printf ("\n(.text + .data + .bootloader)\n\n");
+++  
+++  /* Data size */
+++  printf ("Data:   %8ld bytes", data);
+++  if (rammax > 0)
+++  {
+++    printf (" (%2.1f%% Full)", ((float)data / rammax) * 100);
+++  }
+++  printf ("\n(.data + .bss + .noinit)\n\n");
+++  
+++  /* EEPROM size */
+++  if (eeprom > 0) 
+++  { 
+++    printf ("EEPROM: %8ld bytes", eeprom);
+++    if (eeprommax > 0)
+++    {
+++      printf (" (%2.1f%% Full)", ((float)eeprom / eeprommax) * 100);
+++    }
+++    printf ("\n(.eeprom)\n\n");
+++  }
+++}
+++
+++
++ static void
++ print_sizes (bfd *file)
++ {
++   if (show_common)
++     calculate_common_size (file);
++-  if (berkeley_format)
++-    print_berkeley_format (file);
++-  else
++-    print_sysv_format (file);
+++  switch (format)
+++  {
+++    case format_sysv:
+++      print_sysv_format (file);
+++      break;
+++    case format_bsd:
+++      print_berkeley_format (file);
+++      break;
+++    case format_avr:
+++    default:
+++      print_avr_format (file);
+++      break;
+++  }
++ }
