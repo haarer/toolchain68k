@@ -30,10 +30,10 @@
 
 OS=$1
 
-if [[ "$OS" = "windows" || "$OS" = "linux"  ]]; then
+if [[ "$OS" = "windows" || "$OS" = "linux" || "$OS" = "raspian" ]]; then
   echo ""
 else
-  echo "os not supported $OS ! use one of linux or windows"
+  echo "os not supported $OS ! use one of linux , windows or raspian"
   exit 1
 fi
 
@@ -299,6 +299,15 @@ GDBVER="gdb-10.1"
 log_msg ">>>> build gdb"
 prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
+
+    log_msg "patching gdb to use libbcrypt"
+    tmpdir=`pwd`
+    cd ..
+    echo `pwd`
+    patch  -p1 -i $M68KBUILD/../gdb.patch
+    cd $tmpdir
+
+
 GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
 conf_compile_source gdb "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
@@ -316,11 +325,14 @@ cd $M68KBUILD
 #works only in bash
 PACKAGEVER=${GCCVER/#gcc-}
 
-if [[ $OS = windows* ]]; then EXECUTEABLESUFFIX=".exe" echo "on windows, copy mingw dlls"
+if [[ $OS = windows* ]]; then 
+EXECUTEABLESUFFIX=".exe" 
+echo "on windows, copy mingw dlls"
 for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll
 do
-    cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
+  cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
 done
+
 cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
 {
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
@@ -335,7 +347,7 @@ cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
 }
 EOFWINDOWSVARIANT
 
-elif [[ $OS = Rasp* ]]; then echo "on raspian"
+elif [[ $OS = raspian* ]]; then echo "on raspian"
 cat >$HOSTINSTALLPATH/package.json <<EOFRASPIVARIANT
 {
     "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
@@ -363,6 +375,7 @@ cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
     "version": "$PACKAGEVER"
 }
 EOFLINUXVARIANT
+
 fi
 
 log_msg "packaging.."
