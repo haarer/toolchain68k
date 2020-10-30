@@ -79,11 +79,20 @@ fi
 
 export PATH=$HOSTINSTALLPATH/bin:$PATH
 
+NOCOLOR='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
 
 function log_msg () {
 	local logline="`date` $1"
-	echo $logline >> $LOGFILE
-	echo $logline
+	echo -e "${GREEN}$logline${NOCOLOR}" >> $LOGFILE
+	echo -e "${GREEN}$logline${NOCOLOR}"
+}
+
+function log_err () {
+	local logline="`date` $1"
+	echo -e "${RED}$logline${NOCOLOR}" >> $LOGFILE
+	echo -e "${RED}$logline${NOCOLOR}"
 }
 
 
@@ -124,7 +133,7 @@ function prepare_source () {
         elif [ "$ARCHTYPE" = "git" ]; then
             echo "" #nothing to do for git
         else
-            log_msg " !!!!! unknown archive format"
+            log_err " !!!!! unknown archive format"
             exit 1
         fi
         log_msg " unpacking $SOURCENAME finished"
@@ -143,6 +152,11 @@ function prepare_source () {
 #function to install package
 function install_package () {
     make install
+    if [ $? -eq 0 ]; then
+        log_msg "install finished"
+    else
+        log_err "install failed"
+    fi
 }
 
 function conf_compile_source () {
@@ -161,12 +175,16 @@ function conf_compile_source () {
     else
         log_msg "configuring $SOURCEPACKAGE skipped"
     fi
-
+    
     if [ ! -f $DETECTFILE ]; then
 
         log_msg "building $SOURCEPACKAGE"
         make -j $MAKEJOBS
-        log_msg "building $SOURCEPACKAGE finished"
+        if [ $? -eq 0 ]; then
+            log_msg "building $SOURCEPACKAGE finished"
+        else
+            log_err "building $SOURCEPACKAGE failed"
+        fi
 
         log_msg "install $SOURCEPACKAGE"
         install_package
@@ -240,7 +258,7 @@ if [ ! -d ../gmp ]; then
     cd cross-chain-$TARGETARCHITECTURE-obj
 fi
 
-GCCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
+GCCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --enable-lto --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
 
 conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "$GCCFLAGS"
 
@@ -283,7 +301,20 @@ else
 
     export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
-    LIBCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-newlib-reent-small --disable-malloc-debugging --enable-newlib-multithread --disable-newlib-io-float --disable-newlib-supplied-syscalls --disable-newlib-io-c99-formats --disable-newlib-mb --disable-newlib-atexit-alloc --enable-target-optspace --disable-shared --enable-static --enable-fast-install"
+    LIBCFLAGS+=" --target=$TARGETARCHITECTURE \
+                 --prefix=$HOSTINSTALLPATH/ \
+                 --enable-newlib-reent-small \
+                 --disable-malloc-debugging \
+                 --enable-newlib-multithread \
+                 --disable-newlib-io-float \
+                 --disable-newlib-supplied-syscalls \
+                 --disable-newlib-io-c99-formats \
+                 --disable-newlib-mb \
+                 --disable-newlib-atexit-alloc \
+                 --enable-target-optspace \
+                 --disable-shared \
+                 --enable-static \
+                 --enable-fast-install"
 
     conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 

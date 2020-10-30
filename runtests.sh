@@ -10,6 +10,8 @@ function test_build_result () {
  if [ ! -f $TESTFILE ]; then
    echo -e "${RED}Build Error${NOCOLOR} : missing file $TESTFILE"
    exit 1
+ else
+   echo -e "${GREEN}Build Successful${NOCOLOR} : $TESTFILE"
  fi 
 }
 
@@ -26,6 +28,10 @@ case $TARGETARCHITECTURE in
     ( cd examples/arm-none-eabi-example ; make clean && make arm-test.bin )
     test_build_result "examples/arm-none-eabi-example/arm-test.bin" 
     ( cd examples/arm-none-eabi-example ; make clean )
+
+    ( cd examples/arm-none-eabi-example-baremetal ; make clean && make arm-test.bin )
+    test_build_result "examples/arm-none-eabi-example-baremetal/arm-test.bin" 
+    ( cd examples/arm-none-eabi-example-baremetal ; make clean )
   ;;
 "m68k-elf")
     ( cd examples/m68k-example && make clean && make files )
