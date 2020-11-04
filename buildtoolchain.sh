@@ -258,7 +258,23 @@ if [ ! -d ../gmp ]; then
     cd cross-chain-$TARGETARCHITECTURE-obj
 fi
 
-GCCFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --enable-languages=c,c++ --enable-lto --disable-bootstrap --with-newlib --disable-libmudflap --disable-libssp --disable-libgomp --disable-libstdcxx-pch --disable-threads --with-gnu-as --with-gnu-ld --disable-nls --with-headers=yes --disable-checking --without-headers"
+GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
+            --prefix=$HOSTINSTALLPATH/    \
+            --enable-languages=c,c++      \
+            --enable-lto                  \
+            --disable-bootstrap           \
+            --with-newlib                 \
+            --disable-libmudflap          \
+            --disable-libssp              \
+            --disable-libgomp             \
+            --disable-libstdcxx-pch       \
+            --disable-threads             \
+            --with-gnu-as                 \
+            --with-gnu-ld                 \
+            --disable-nls                 \
+            --with-headers=yes            \
+            --disable-checking            \
+            --without-headers"
 
 conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "$GCCFLAGS"
 
@@ -272,8 +288,6 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
     LIBCVER="avr-libc-2.0.0"
 
     prepare_source http://download.savannah.gnu.org/releases/avr-libc $LIBCVER tar.bz2
-
-    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
 
     LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/"
 
@@ -298,9 +312,6 @@ else
     patch  -p1 -i $M68KBUILD/../newlib.patch
     cd $tmpdir
 
-
-    export PATH=$PATH:/opt/$TARGETARCHITECTURE/bin/
-
     LIBCFLAGS+=" --target=$TARGETARCHITECTURE \
                  --prefix=$HOSTINSTALLPATH/ \
                  --enable-newlib-reent-small \
@@ -311,10 +322,22 @@ else
                  --disable-newlib-io-c99-formats \
                  --disable-newlib-mb \
                  --disable-newlib-atexit-alloc \
+                 --disable-newlib-fvwrite-in-streamio  \
+                 --disable-newlib-fseek-optimization   \
+                 --disable-newlib-wide-orient          \
+                 --disable-newlib-unbuf-stream-opt     \
                  --enable-target-optspace \
+                 --enable-newlib-nano-malloc           \
                  --disable-shared \
+                 --enable-lite-exit                    \
+                 --enable-newlib-global-atexit         \
+                 --disable-nls                         \
+                 --enable-newlib-nano-formatted-io     \
                  --enable-static \
                  --enable-fast-install"
+
+
+
 
     conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
