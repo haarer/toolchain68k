@@ -50,9 +50,12 @@ jobs:
       - name: Build toolchain
         run: |
           bash buildtoolchain.sh windows  ${{ matrix.architecture }}
-      - name: Build example with toolchain
+      - name: Build examples with toolchain
         run: |
           bash runtests.sh  ${{ matrix.architecture }}
+      - name: Build platformio examples with toolchain
+        run: |
+          bash runtests_pio.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
