@@ -23,9 +23,21 @@ TESTLOG=$PIOTESTS/testlog.txt
 
 [[ ! -d $PIOTESTS ]] && mkdir $PIOTESTS
 
+#tbd:
+#on arm the zephyr framework needs to be patched, not to require the toolchain "" but "toolchain-arm-none-eabi-current"
+# line 84 ~/.platformio/packages/framework-zephyr/scripts/platformio/platformio-build.py
 
+#the ~/.platformio/platforms/ststm32/platform.py needs to be patched not to require those versions (remove lines 43  and 50)
+#            self.packages['toolchain-gccarmnoneeabi']['version'] = "~1.60301.0"
+#            self.packages['toolchain-gccarmnoneeabi']['version'] = "~1.80201.0"
+#
+#sed -i "/self.packages\['toolchain-gccarmnoneeabi'\]\['version'\]/d" ~/.platformio/platforms/ststm32/platform.py
 case $TARGETARCHITECTURE in
 "arm-none-eabi")
+#in order to patch the platform and the zephyr framework to use the new toolchain
+    pio platform install https://github.com/haarer/platform-ststm32.git  --with-package framework-zephyr --skip-default-package
+    sed -i "/self.packages\['toolchain-gccarmnoneeabi'\]\['version'\]/d" ~/.platformio/platforms/ststm32/platform.py
+    sed -i "s/toolchain-gccarmnoneeabi/toolchain-arm-none-eabi-current/g" ~/.platformio/packages/framework-zephyr/scripts/platformio/platformio-build.py
     ( cd $PIOTESTS && [[ ! -d platform-ststm32 ]] && git clone https://github.com/haarer/platform-ststm32.git )
     for ex in `ls $PIOTESTS/platform-ststm32/examples` 
     do
