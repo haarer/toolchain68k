@@ -35,15 +35,15 @@ TESTLOG=$PIOTESTS/testlog.txt
 case $TARGETARCHITECTURE in
 "arm-none-eabi")
 #in order to patch the platform and the zephyr framework to use the new toolchain
-    pio platform install https://github.com/haarer/platform-ststm32.git  --with-package framework-zephyr --skip-default-package
+    platformio platform install https://github.com/haarer/platform-ststm32.git  --with-package framework-zephyr --skip-default-package
     sed -i "/self.packages\['toolchain-gccarmnoneeabi'\]\['version'\]/d" ~/.platformio/platforms/ststm32/platform.py
     sed -i "s/toolchain-gccarmnoneeabi/toolchain-arm-none-eabi-current/g" ~/.platformio/packages/framework-zephyr/scripts/platformio/platformio-build.py
     ( cd $PIOTESTS && [[ ! -d platform-ststm32 ]] && git clone https://github.com/haarer/platform-ststm32.git )
     for ex in `ls $PIOTESTS/platform-ststm32/examples` 
     do
       sed -i -e "/^platform/a\\platform_packages = haarer/toolchain-arm-none-eabi-current @ file://../../../../toolchain-arm-none-eabi-current" $PIOTESTS/platform-ststm32/examples/$ex/platformio.ini
-      echo "TESTING $ex" >>$TESTLOG
-      pio run -d $PIOTESTS/platform-ststm32/examples/$ex &>>$TESTLOG
+      echo "TESTING $ex" 2>&1 | tee -a $TESTLOG
+      platformio run -d $PIOTESTS/platform-ststm32/examples/$ex 2>&1 | tee -a $TESTLOG
     done
   ;;
 "m68k-elf")
@@ -51,8 +51,8 @@ case $TARGETARCHITECTURE in
     for ex in `ls $PIOTESTS/platform-m68k/examples` 
     do
       sed -i -e "/^platform/a\\platform_packages = haarer/toolchain-m68k-elf-current @ file://../../../../toolchain-m68k-elf-current" $PIOTESTS/platform-m68k/examples/$ex/platformio.ini
-      echo "TESTING $ex" >>$TESTLOG
-      pio run -d $PIOTESTS/platform-m68k/examples/$ex &>>$TESTLOG
+      echo "TESTING $ex" 2>&1 | tee -a $TESTLOG
+      platformio run -d $PIOTESTS/platform-m68k/examples/$ex 2>&1 | tee -a $TESTLOG
     done
   ;;
 "avr")
@@ -60,8 +60,8 @@ case $TARGETARCHITECTURE in
     for ex in `ls $PIOTESTS/platform-atmelavr/examples` 
     do
       sed -i -e "/^platform/a\\platform_packages = haarer/toolchain-avr-current @ file://../../../../toolchain-avr-current" $PIOTESTS/platform-atmelavr/examples/$ex/platformio.ini
-      echo "TESTING $ex" >>$TESTLOG
-      pio run -d $PIOTESTS/platform-atmelavr/examples/$ex &>>$TESTLOG
+      echo "TESTING $ex" 2>&1 | tee -a $TESTLOG
+      platformio run -d $PIOTESTS/platform-atmelavr/examples/$ex 2>&1 | tee -a $TESTLOG
     done
   ;;
 *)
