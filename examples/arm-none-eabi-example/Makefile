@@ -4,7 +4,7 @@
 TARGET := arm-test
 CPU:= cortex-m3
 
-STMLIBDIR :=STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
+STMLIBDIR :=../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
 
 CXX := arm-none-eabi-g++
 CC := arm-none-eabi-gcc
