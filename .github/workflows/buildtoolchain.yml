@@ -23,6 +23,11 @@ jobs:
       - name: Build example with toolchain
         run: |
           bash runtests.sh  ${{ matrix.architecture }}
+      - name: Build platformio examples with toolchain
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          bash runtests_pio.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
@@ -55,6 +60,8 @@ jobs:
           bash runtests.sh  ${{ matrix.architecture }}
       - name: Build platformio examples with toolchain
         run: |
+          python -m pip install --upgrade pip
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
           bash runtests_pio.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
