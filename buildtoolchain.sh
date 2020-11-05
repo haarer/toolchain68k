@@ -28,8 +28,16 @@
 # some sh versions dont like the () after functions - call the script using bash helps
 #
 
+#first parameter: operating system to build for
 OS=$1
 
+#second parameter : desired target architecture
+TARGETARCHITECTURE=$2
+
+#third parameter : desired action ()
+ACTION=$3
+
+# check parameters
 if [[ "$OS" = "windows" || "$OS" = "linux" || "$OS" = "raspian" ]]; then
   echo ""
 else
@@ -37,11 +45,6 @@ else
   exit 1
 fi
 
-#set this to the desired target architecture
-#TARGETARCHITECTURE=arm-none-eabi
-#TARGETARCHITECTURE=m68k-elf
-#TARGETARCHITECTURE=avr
-TARGETARCHITECTURE=$2
 if [[ "$TARGETARCHITECTURE" = "arm-none-eabi" || "$TARGETARCHITECTURE" = "m68k-elf"  || "$TARGETARCHITECTURE" = "avr" ]]; then
   echo ""
 else
@@ -50,34 +53,24 @@ else
 fi
 
 
-LOGFILE="`pwd`/buildlog.txt"
+#define package versions
+BINUTILS="binutils-2.35"
+GCCVER="gcc-10.2.0"
+AVRLIBVER="avr-libc-2.0.0"
+NEWLIBVER="newlib-3.3.0"
+GDBVER="gdb-10.1"
 
 #set the number of parallel makes
 MAKEJOBS=16
 
-
-
-HOSTINSTALLPATH="`pwd`/toolchain-$TARGETARCHITECTURE-current"
-
-
-export CFLAGS='-O2 -pipe'
-export CXXFLAGS='-O2 -pipe'
-export LDFLAGS='-s'
-export DEBUG_FLAGS=''
-
-
-if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
-        MACHINEFLAGS="--with-cpu=cortex-m4 --with-cpu=cortex-m3 --with-fpu=fpv4-sp-d16 --with-float=hard --with-float=softfp 
--with-float=soft --with-mode=thumb"
-	GCCFLAGS=$MACHINEFLAGS
-	BINUTILSFLAGS=$MACHINEFLAGS
-	LIBCFLAGS=$MACHINEFLAGS
-	GDBFLAGS=$MACHINEFLAGS
-fi
-
-
+# -------------------------------------- derived globals -----------------------------------
+ROOTDIR=`pwd`
+LOGFILE="$ROOTDIR/buildlog.txt"
+HOSTINSTALLPATH="$ROOTDIR/toolchain-$TARGETARCHITECTURE-current"
 
 export PATH=$HOSTINSTALLPATH/bin:$PATH
+
+# -------------------------------------- functions -----------------------------------------
 
 NOCOLOR='\033[0m'
 RED='\033[0;31m'
@@ -95,11 +88,12 @@ function log_err () {
 	echo -e "${RED}$logline${NOCOLOR}"
 }
 
-
 function prepare_source () {
     local BASEURL=$1
     local SOURCENAME=$2
     local ARCHTYPE=$3
+
+    pushd $ROOTDIR/cross-toolchain > /dev/null
 
     if [ "$ARCHTYPE" = "git" ]; then
         if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
@@ -145,18 +139,9 @@ function prepare_source () {
     if [ ! -d cross-chain-$TARGETARCHITECTURE-obj ]; then
         mkdir cross-chain-$TARGETARCHITECTURE-obj
     fi
-    cd cross-chain-$TARGETARCHITECTURE-obj
 
-}
+    popd > /dev/null
 
-#function to install package
-function install_package () {
-    make install
-    if [ $? -eq 0 ]; then
-        log_msg "install finished"
-    else
-        log_err "install failed"
-    fi
 }
 
 function conf_compile_source () {
@@ -164,13 +149,16 @@ function conf_compile_source () {
     local DETECTFILE=$2
     local CONFIGURESTRING=$3
 
-    log_msg "CCS sourcepackage= $SOURCEPACKAGE"
-    log_msg "CCS detect file= $DETECTFILE"
-    log_msg "CCS cfgstring $CONFIGURESTRING"
+    [ ! -d $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj ] && mkdir $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj
+
+    pushd $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj > /dev/null
+
+    log_msg "COMPILE sourcepackage= $SOURCEPACKAGE"
+    log_msg "COMPILE detect file= $DETECTFILE"
 
     if [ ! -f config.status ]; then
         log_msg "configuring $SOURCEPACKAGE"
-        ../configure $CONFIGURESTRING || exit 1
+        ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
         log_msg "configuring $SOURCEPACKAGE finished"
     else
         log_msg "configuring $SOURCEPACKAGE skipped"
@@ -179,7 +167,7 @@ function conf_compile_source () {
     if [ ! -f $DETECTFILE ]; then
 
         log_msg "building $SOURCEPACKAGE"
-        make -j $MAKEJOBS
+        make -j $MAKEJOBS 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
         if [ $? -eq 0 ]; then
             log_msg "building $SOURCEPACKAGE finished"
         else
@@ -192,8 +180,93 @@ function conf_compile_source () {
     else
         log_msg "compiling and install $SOURCEPACKAGE skipped"
     fi
-
+    popd > /dev/null
 }
+
+
+#function to install package
+function install_package () {
+    make install
+    if [ $? -eq 0 ]; then
+        log_msg "install finished"
+    else
+        log_err "install failed"
+    fi
+}
+
+function purge_pkg () {
+    local PACKAGE=$1
+    [ -d $ROOTDIR/cross-toolchain/$PACKAGE ] && rm -rf $ROOTDIR/cross-toolchain/$PACKAGE
+}
+
+
+
+
+
+if [ "$ACTION" = "purge" ]; then
+    rm -rf $HOSTINSTALLPATH
+    rm $ROOTDIR/*.log
+    purge_pkg $BINUTILS
+    purge_pkg $GCCVER
+    purge_pkg $AVRLIBVER
+    purge_pkg $NEWLIBVER
+    purge_pkg $GDBVER
+    exit 0
+fi
+
+[ ! -d cross-toolchain ] &&	mkdir cross-toolchain
+
+if [ "$ACTION" = "download" ]; then
+    prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
+
+    if [ "$TARGETARCHITECTURE" = "avr" ]; then
+        prepare_source http://download.savannah.gnu.org/releases/avr-libc $AVRLIBVER tar.bz2
+
+    	log_msg "patching binutils"
+        pushd $ROOTDIR/cross-toolchain/$BINUTILS > /dev/null
+    	patch  -p0 -i ../../avr_binutils.patch
+        popd > /dev/null
+    else
+        prepare_source ftp://sourceware.org/pub/newlib $NEWLIBVER tar.gz
+
+        log_msg "patching newlib to automatically determine _LDBL_EQ_DBL"
+        pushd $ROOTDIR/cross-toolchain/$NEWLIBVER > /dev/null
+        patch  -p1 -i ../../newlib.patch
+        popd > /dev/null
+    fi
+
+    prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
+
+    prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
+
+    log_msg "patching gdb to use libbcrypt"
+    pushd $ROOTDIR/cross-toolchain/$GDBVER > /dev/null
+    patch  -p1 -i ../../gdb.patch
+    popd > /dev/null
+
+    exit 0
+fi
+
+
+
+export CFLAGS='-O2 -pipe'
+export CXXFLAGS='-O2 -pipe'
+export LDFLAGS='-s'
+export DEBUG_FLAGS=''
+
+
+if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
+        MACHINEFLAGS="--with-cpu=cortex-m4 --with-cpu=cortex-m3 --with-fpu=fpv4-sp-d16 --with-float=hard --with-float=softfp 
+-with-float=soft --with-mode=thumb"
+	GCCFLAGS=$MACHINEFLAGS
+	BINUTILSFLAGS=$MACHINEFLAGS
+	LIBCFLAGS=$MACHINEFLAGS
+	GDBFLAGS=$MACHINEFLAGS
+fi
+
+
+
+
 
 # -------------------------------------------------------------------------------------------
 log_msg " start of buildscript"
@@ -208,9 +281,6 @@ else
 	EXECUTEABLESUFFIX=""
 fi
 
-if [ ! -d cross-toolchain ]; then
-	mkdir cross-toolchain
-fi
 
 cd cross-toolchain
 
@@ -223,23 +293,12 @@ echo "build path:" $M68KBUILD
 # build binutils
 
 log_msg ">>>> build binutils"
-BINUTILS="binutils-2.35"
-
-prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
-
-if [ "$TARGETARCHITECTURE" = "avr" ]; then
-	log_msg "patching binutils"
-	tmpdir=`pwd`
-	cd ..
-	patch  -p0 -i $M68KBUILD/../avr_binutils.patch
-	cd $tmpdir
-fi
 
 BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
 
 #LDFLAGS=-Wl,-rpath=$(ORIGIN)/usr/lib/binutils/avr/git,--enable-new-dtags
 
-conf_compile_source binutils "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
+conf_compile_source $BINUTILS "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
 
 cd $M68KBUILD
 
@@ -247,70 +306,93 @@ cd $M68KBUILD
 # build gcc
 
 log_msg ">>>> build gcc"
-GCCVER="gcc-10.2.0"
 
-prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
 
-if [ ! -d ../gmp ]; then
+pushd $ROOTDIR/cross-toolchain/$GCCVER > /dev/null
+if [ ! -d gmp ]; then
     log_msg "fetching gcc prerequisites"
-    cd ..
     ./contrib/download_prerequisites
-    cd cross-chain-$TARGETARCHITECTURE-obj
 fi
+popd > /dev/null
+
 
 GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
             --prefix=$HOSTINSTALLPATH/    \
+            --libexecdir=$HOSTINSTALLPATH/lib \
             --enable-languages=c,c++      \
             --enable-lto                  \
-            --disable-bootstrap           \
             --with-newlib                 \
+            --disable-shared              \
+            --disable-decimal-float       \
             --disable-libmudflap          \
             --disable-libssp              \
             --disable-libgomp             \
+            --disable-libquadmath         \
             --disable-libstdcxx-pch       \
             --disable-threads             \
+            --disable-tls                 \
+            --disable-nls                 \
             --with-gnu-as                 \
             --with-gnu-ld                 \
-            --disable-nls                 \
-            --with-headers=yes            \
             --disable-checking            \
+            --with-sysroot=$HOSTINSTALLPATH/$TARGETARCHITECTURE \
             --without-headers"
 
-conf_compile_source gcc "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gcov$EXECUTEABLESUFFIX" "$GCCFLAGS"
+SOURCEPACKAGE=$GCCVER
+CONFIGURESTRING=$GCCFLAGS
 
-cd $M68KBUILD
+
+[ ! -d $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj ] && mkdir $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj
+
+pushd $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj > /dev/null
+
+log_msg "CCS sourcepackage= $SOURCEPACKAGE=$GCCVER"
+log_msg "CCS detect file= $DETECTFILE"
+log_msg "CCS cfgstring $CONFIGURESTRING"
+
+if [ ! -f config.status ]; then
+    log_msg "configuring $SOURCEPACKAGE"
+    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+    log_msg "configuring $SOURCEPACKAGE finished"
+else
+    log_msg "configuring $SOURCEPACKAGE skipped"
+fi
+
+log_msg "building $SOURCEPACKAGE"
+make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+if [ $? -eq 0 ]; then
+    log_msg "building $SOURCEPACKAGE finished"
+else
+    log_err "building $SOURCEPACKAGE failed"
+fi
+
+log_msg "install $SOURCEPACKAGE"
+make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+log_msg "install $SOURCEPACKAGE finished"
+
+popd > /dev/null
+
 
 if [ "$TARGETARCHITECTURE" = "avr" ]; then
+    LIBCVER=$AVRLIBVER
     #--------------------------------LIBC LIBAVR -------------------------------------------------
     #build avr libc
 
     log_msg ">>>> build avrlib"
-    LIBCVER="avr-libc-2.0.0"
 
-    prepare_source http://download.savannah.gnu.org/releases/avr-libc $LIBCVER tar.bz2
 
     LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/"
 
-    conf_compile_source avrlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
-
-    cd $M68KBUILD
+    conf_compile_source $AVRLIBVER "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
 else
-
+    LIBCVER=$NEWLIBVER
     #--------------------------------LIBC NEWLIB -------------------------------------------------
     #build libc for other platforms
 
     log_msg ">>>> build newlib"
-    LIBCVER="newlib-3.1.0"
 
-    prepare_source ftp://sources.redhat.com/pub/newlib $LIBCVER tar.gz
 
-    log_msg "patching newlib to automatically determine _LDBL_EQ_DBL"
-    tmpdir=`pwd`
-    cd ..
-    echo `pwd`
-    patch  -p1 -i $M68KBUILD/../newlib.patch
-    cd $tmpdir
 
     LIBCFLAGS+=" --target=$TARGETARCHITECTURE \
                  --prefix=$HOSTINSTALLPATH/ \
@@ -331,46 +413,107 @@ else
                  --disable-shared \
                  --enable-lite-exit                    \
                  --enable-newlib-global-atexit         \
+       			 --enable-newlib-global-stdio-streams \
                  --disable-nls                         \
                  --enable-newlib-nano-formatted-io     \
+       			 --enable-newlib-retargetable-locking \
                  --enable-static \
+                 --enable-newlib-nano-malloc \
                  --enable-fast-install"
 
+BASE_CPPFLAGS="-pipe"
+BASE_LDFLAGS=
+BASE_CFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections"
+BASE_CXXFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections -fno-exceptions"
+export CPPFLAGS="${BASE_CPPFLAGS-} ${CPPFLAGS-}"
+export LDFLAGS="${BASE_LDFLAGS-} ${LDFLAGS-}"
+export CFLAGS_FOR_TARGET="-g -Os ${BASE_CFLAGS_FOR_TARGET-} ${CFLAGS_FOR_TARGET-}"
 
 
-
-    conf_compile_source newlib "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
-
-    cd $M68KBUILD
+    conf_compile_source $NEWLIBVER "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
 fi
 
 
+#--------------------------------- GCC ------------------------------------------------
+# build gcc
+
+log_msg ">>>> build gcc stage 2"
+
+
+
+GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
+            --prefix=$HOSTINSTALLPATH/    \
+            --libexecdir=$HOSTINSTALLPATH/lib \
+            --enable-languages=c,c++      \
+            --enable-lto                  \
+			--disable-libstdcxx-verbose \
+            --with-newlib                 \
+            --disable-shared              \
+            --disable-decimal-float       \
+            --disable-libmudflap          \
+            --disable-libssp              \
+            --disable-libgomp             \
+            --disable-libquadmath         \
+            --disable-libstdcxx-pch       \
+            --disable-threads             \
+            --disable-tls                 \
+            --disable-nls                 \
+            --with-gnu-as                 \
+            --with-gnu-ld                 \
+            --disable-checking            \
+			--with-headers=yes            \
+            --with-sysroot=$HOSTINSTALLPATH/$TARGETARCHITECTURE "
+
+SOURCEPACKAGE=$GCCVER
+CONFIGURESTRING=$GCCFLAGS
+
+
+[ ! -d $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj2 ] && mkdir $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj2
+
+pushd $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj2 > /dev/null
+
+log_msg "CCS sourcepackage= $SOURCEPACKAGE=$GCCVER"
+log_msg "CCS cfgstring $CONFIGURESTRING"
+
+if [ ! -f config.status ]; then
+    log_msg "configuring $SOURCEPACKAGE"
+    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+    log_msg "configuring $SOURCEPACKAGE finished"
+else
+    log_msg "configuring $SOURCEPACKAGE skipped"
+fi
+
+
+log_msg "building $SOURCEPACKAGE"
+make -j $MAKEJOBS  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+if [ $? -eq 0 ]; then
+    log_msg "building $SOURCEPACKAGE finished"
+else
+    log_err "building $SOURCEPACKAGE failed"
+fi
+
+log_msg "install $SOURCEPACKAGE"
+make install  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+log_msg "install $SOURCEPACKAGE finished"
+
+popd > /dev/null
+
+
+
 #---------------------------------------------------------------------------------
 #build gdb
-GDBVER="gdb-10.1"
 
 log_msg ">>>> build gdb"
-prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
 
-    log_msg "patching gdb to use libbcrypt"
-    tmpdir=`pwd`
-    cd ..
-    echo `pwd`
-    patch  -p1 -i $M68KBUILD/../gdb.patch
-    cd $tmpdir
 
 
 GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
-conf_compile_source gdb "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
+conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
 
 cd $M68KBUILD
-
-
-
-
 
 
 #---------------------------------------------------------------------------------
@@ -433,7 +576,7 @@ EOFLINUXVARIANT
 fi
 
 log_msg "packaging.."
-cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$1-$GCCVER.tar.gz * ; cd ..
-sha1sum toolchain-$TARGETARCHITECTURE-$1-$GCCVER.tar.gz
+cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
+sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
 

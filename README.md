@@ -9,7 +9,7 @@ The used toolchain versions are
  * gcc 10.2.0
  * binutils 2.35 (with an the ususal avr size patch ported to the recent changes in binutils)
  * gdb 10.1 (with a patch that fixes library usage by the makefile, see https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=361cb219351d8b7e39e1962fe77f40aa80657b27 )
- * newlib 3.1.0   (with a patch to determine if long double is the same size as double, needed for m68k-elf )
+ * newlib 3.3.0   (with a patch to determine if long double is the same size as double, needed for m68k-elf )
  * avr-libc 2.0.0
 
 The build script can build for the following target architectures
