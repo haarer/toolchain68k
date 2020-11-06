@@ -199,24 +199,9 @@ function purge_pkg () {
     [ -d $ROOTDIR/cross-toolchain/$PACKAGE ] && rm -rf $ROOTDIR/cross-toolchain/$PACKAGE
 }
 
+function download_all_pkg () {
+    [ ! -d  $ROOTDIR/cross-toolchain ] &&	mkdir  $ROOTDIR/cross-toolchain
 
-
-
-
-if [ "$ACTION" = "purge" ]; then
-    rm -rf $HOSTINSTALLPATH
-    rm $ROOTDIR/*.log
-    purge_pkg $BINUTILS
-    purge_pkg $GCCVER
-    purge_pkg $AVRLIBVER
-    purge_pkg $NEWLIBVER
-    purge_pkg $GDBVER
-    exit 0
-fi
-
-[ ! -d cross-toolchain ] &&	mkdir cross-toolchain
-
-if [ "$ACTION" = "download" ]; then
     prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
     if [ "$TARGETARCHITECTURE" = "avr" ]; then
@@ -243,7 +228,25 @@ if [ "$ACTION" = "download" ]; then
     pushd $ROOTDIR/cross-toolchain/$GDBVER > /dev/null
     patch  -p1 -i ../../gdb.patch
     popd > /dev/null
+}
 
+
+
+
+if [ "$ACTION" = "purge" ]; then
+    rm -rf $HOSTINSTALLPATH
+    rm $ROOTDIR/*.log
+    purge_pkg $BINUTILS
+    purge_pkg $GCCVER
+    purge_pkg $AVRLIBVER
+    purge_pkg $NEWLIBVER
+    purge_pkg $GDBVER
+    exit 0
+fi
+
+
+if [ "$ACTION" = "download" ]; then
+    download_all_pkg
     exit 0
 fi
 
@@ -282,12 +285,11 @@ else
 fi
 
 
-cd cross-toolchain
-
-M68KBUILD=`pwd`
-echo "build path:" $M68KBUILD
+cd $ROOTDIR/cross-toolchain
 
 
+# dl all sources and patch them if necessary
+download_all_pkg
 
 #-------------------------------- BINUTILS --------------------------------------------------
 # build binutils
@@ -300,7 +302,6 @@ BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
 conf_compile_source $BINUTILS "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
 
-cd $M68KBUILD
 
 #--------------------------------- GCC ------------------------------------------------
 # build gcc
@@ -512,8 +513,6 @@ log_msg ">>>> build gdb"
 GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
-
-cd $M68KBUILD
 
 
 #---------------------------------------------------------------------------------
