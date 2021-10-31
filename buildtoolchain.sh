@@ -54,11 +54,11 @@ fi
 
 
 #define package versions
-BINUTILS="binutils-2.35"
-GCCVER="gcc-10.2.0"
+BINUTILS="binutils-2.37"
+GCCVER="gcc-11.2.0"
 AVRLIBVER="avr-libc-2.0.0"
 NEWLIBVER="newlib-3.3.0"
-GDBVER="gdb-10.1"
+GDBVER="gdb-11.1"
 
 #set the number of parallel makes
 MAKEJOBS=16
@@ -224,10 +224,10 @@ function download_all_pkg () {
 
     prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
-    log_msg "patching gdb to use libbcrypt"
-    pushd $ROOTDIR/cross-toolchain/$GDBVER > /dev/null
-    patch  -p1 -i ../../gdb.patch
-    popd > /dev/null
+    #log_msg "patching gdb to use libbcrypt"
+    #pushd $ROOTDIR/cross-toolchain/$GDBVER > /dev/null
+    #patch  -p1 -i ../../gdb.patch
+    #popd > /dev/null
 }
 
 
@@ -509,8 +509,8 @@ log_msg ">>>> build gdb"
 
 
 
+GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --with-gmp=../../$GCCVER/gmp"
 
-GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/"
 
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
 
