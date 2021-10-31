@@ -57,7 +57,7 @@ fi
 BINUTILS="binutils-2.37"
 GCCVER="gcc-11.2.0"
 AVRLIBVER="avr-libc-2.0.0"
-NEWLIBVER="newlib-3.3.0"
+NEWLIBVER="newlib-4.1.0"
 GDBVER="gdb-11.1"
 
 #set the number of parallel makes
@@ -521,8 +521,8 @@ conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUT
 #works only in bash
 PACKAGEVER=${GCCVER/#gcc-}
 
-if [[ $OS = windows* ]]; then 
-EXECUTEABLESUFFIX=".exe" 
+if [[ $OS = windows* ]]; then
+EXECUTEABLESUFFIX=".exe"
 echo "on windows, copy mingw dlls"
 for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll libzstd.dll
 do

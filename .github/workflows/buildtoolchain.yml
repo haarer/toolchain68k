@@ -15,7 +15,7 @@ jobs:
           submodules: "recursive"        
       - name: Install dependencies
         run: |
-          sudo apt-get install wget bzip2 unzip git make tar flex bison diffutils texinfo gcc g++ libstdc++-8-dev
+          sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++
         shell: bash
       - name: Build toolchain
         run: |
@@ -31,7 +31,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-linux-gcc-10.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-11.2.0.tar.gz
           retention-days: 5    
   buildwindows:
     strategy:
@@ -66,5 +66,5 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-windows-gcc-10.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-windows-gcc-11.2.0.tar.gz
           retention-days: 5

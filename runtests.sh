@@ -37,7 +37,7 @@ case $TARGETARCHITECTURE in
     ( cd examples/m68k-example && make clean && make files )
     test_build_result "examples/m68k-example/m68k-test.bin" 
     ( cd examples/m68k-example && make clean )
-    
+
     ( cd examples/m68k-example2 && make clean && make files )
     test_build_result "examples/m68k-example2/m68k-test.bin" 
     ( cd examples/m68k-example2 && make clean)
