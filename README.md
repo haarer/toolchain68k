@@ -6,23 +6,23 @@ Build a toolchain for 68k, avr and cortex-m3 and cortex-m4 cross developement us
 This supports development for various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
 The used toolchain versions are
- * gcc 11.2.0
- * binutils 2.37 (with an the ususal avr size patch ported to the recent changes in binutils)
- * gdb 11.1
- * newlib 4.1.0
- * avr-libc 2.0.0
+ * gcc 13.2.0
+ * binutils 2.42 (with the ususal avr size patch)
+ * gdb 14.2
+ * newlib 4.4.0.20231231
+ * avr-libc 2.1.0
 
 The build script can build for the following target architectures
  * m68k-elf
  * avr
  * arm-none-eabi
 
-The script works on Windows 10 with MSYS2 and on Debian 10. It may work on other platforms but i dont run any tests.
+The script works on Windows 10 with MSYS2 and on Ubuntu 23.10 (mantic). It may work on other platforms but i dont run any tests.
 
 The toolchains are packaged into archives suitable for the platformio development environment (https://platformio.org).
 The archives can be used with eclipse or with make files as well - just unpack them.
 
-The releases section of this git repo contains pre built toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use.
+The releases section of this git repo contains prebuilt toolchains. This can be used as package repository for platformio and there is a platform definition referencing the toolchain packages for platformio use.
 
 The Platform URL to be used for platformio projects are
  * https://github.com/haarer/platform-atmelavr.git
@@ -37,7 +37,7 @@ all commands are to be typed into the msys shell
   * download the MSYS2 Installer from the [MSYS Home Page](http://www.msys2.org/), use the 64 Bit Version
   * execute installer and chose the installation path according to the following criteria
     * best performance will be on a SSD
-    * ite will need approx 4 GB space
+    * it will need approx 4 GB space
     * exclude it from the virus scanner
     * exclude it form the windows index service
     * use a short path without spaces
@@ -100,7 +100,7 @@ The script obtains the sources, unpacks them and builds the tools of the toolcha
 
 The progress of the build is written to a logfile: ```buildlog.txt```
 
-Note that the toolchain script no longer "installs" the toolchain, it always creates platformio toolchain packages. 
+Note that the toolchain script does not installs the toolchain, it always creates platformio toolchain packages. 
 
 # Testing the Toolchain
 Add the path to the binaries and run gcc

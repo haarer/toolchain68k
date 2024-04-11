@@ -54,11 +54,11 @@ fi
 
 
 #define package versions
-BINUTILS="binutils-2.37"
-GCCVER="gcc-11.2.0"
-AVRLIBVER="avr-libc-2.0.0"
-NEWLIBVER="newlib-4.1.0"
-GDBVER="gdb-11.1"
+BINUTILS="binutils-2.42"
+GCCVER="gcc-13.2.0"
+AVRLIBVER="avr-libc-2.1.0"
+NEWLIBVER="newlib-4.4.0.20231231"
+GDBVER="gdb-14.2"
 
 #set the number of parallel makes
 MAKEJOBS=16
@@ -158,7 +158,7 @@ function conf_compile_source () {
 
     if [ ! -f config.status ]; then
         log_msg "configuring $SOURCEPACKAGE"
-        ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+        ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || exit 1
         log_msg "configuring $SOURCEPACKAGE finished"
     else
         log_msg "configuring $SOURCEPACKAGE skipped"
@@ -167,7 +167,7 @@ function conf_compile_source () {
     if [ ! -f $DETECTFILE ]; then
 
         log_msg "building $SOURCEPACKAGE"
-        make -j $MAKEJOBS 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+        make -j $MAKEJOBS 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
         if [ $? -eq 0 ]; then
             log_msg "building $SOURCEPACKAGE finished"
         else
@@ -186,7 +186,7 @@ function conf_compile_source () {
 
 #function to install package
 function install_package () {
-    make install
+    make install 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log
     if [ $? -eq 0 ]; then
         log_msg "install finished"
     else
@@ -353,14 +353,14 @@ log_msg "CCS cfgstring $CONFIGURESTRING"
 
 if [ ! -f config.status ]; then
     log_msg "configuring $SOURCEPACKAGE"
-    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || exit 1
     log_msg "configuring $SOURCEPACKAGE finished"
 else
     log_msg "configuring $SOURCEPACKAGE skipped"
 fi
 
 log_msg "building $SOURCEPACKAGE"
-make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
 if [ $? -eq 0 ]; then
     log_msg "building $SOURCEPACKAGE finished"
 else
@@ -368,7 +368,7 @@ else
 fi
 
 log_msg "install $SOURCEPACKAGE"
-make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.log || exit 1
+make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || exit 1
 log_msg "install $SOURCEPACKAGE finished"
 
 popd > /dev/null
