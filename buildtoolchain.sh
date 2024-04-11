@@ -359,18 +359,25 @@ else
     log_msg "configuring $SOURCEPACKAGE skipped"
 fi
 
-log_msg "building $SOURCEPACKAGE"
-make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
-if [ $? -eq 0 ]; then
-    log_msg "building $SOURCEPACKAGE finished"
+if [ ! -f gcc/include/limits.h ]; then
+    log_msg "building $SOURCEPACKAGE"
+    make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
+    if [ $? -eq 0 ]; then
+        log_msg "building $SOURCEPACKAGE finished"
+    else
+        log_err "building $SOURCEPACKAGE failed"
+    fi
 else
-    log_err "building $SOURCEPACKAGE failed"
+    log_msg "building $SOURCEPACKAGE skipped"
 fi
-
-log_msg "install $SOURCEPACKAGE"
-make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || exit 1
-log_msg "install $SOURCEPACKAGE finished"
-
+# to do : extract number from gccver
+if [ ! -f $HOSTINSTALLPATH/lib/gcc/$TARGETARCHITECTURE/13.2.0/include/limits.h ]; then
+    log_msg "install $SOURCEPACKAGE"
+    make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || exit 1
+    log_msg "install $SOURCEPACKAGE finished"
+else
+    log_msg "install $SOURCEPACKAGE skipped"
+fi
 popd > /dev/null
 
 
@@ -477,9 +484,10 @@ pushd $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-ob
 log_msg "CCS sourcepackage= $SOURCEPACKAGE=$GCCVER"
 log_msg "CCS cfgstring $CONFIGURESTRING"
 
-if [ ! -f config.status ]; then
+# must be reconfigured (with headers now)
+if [ ! -f config.status.nono ]; then
     log_msg "configuring $SOURCEPACKAGE"
-    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-config.2.log || exit 1
     log_msg "configuring $SOURCEPACKAGE finished"
 else
     log_msg "configuring $SOURCEPACKAGE skipped"
@@ -487,7 +495,7 @@ fi
 
 
 log_msg "building $SOURCEPACKAGE"
-make -j $MAKEJOBS  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+make -j $MAKEJOBS  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.2.log || exit 1
 if [ $? -eq 0 ]; then
     log_msg "building $SOURCEPACKAGE finished"
 else
@@ -495,7 +503,7 @@ else
 fi
 
 log_msg "install $SOURCEPACKAGE"
-make install  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE.2.log || exit 1
+make install  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.2.log || exit 1
 log_msg "install $SOURCEPACKAGE finished"
 
 popd > /dev/null
@@ -509,7 +517,7 @@ log_msg ">>>> build gdb"
 
 
 
-GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --with-gmp=../../$GCCVER/gmp"
+GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --with-gmp-include=../../$GCCVER/gmp --with-mpfr-include=../../$GCCVER/mpfr/src --with-mpfr-lib=../../$GCCVER/cross-chain-$TARGETARCHITECTURE-obj/mpfr/src/.libs"
 
 
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
