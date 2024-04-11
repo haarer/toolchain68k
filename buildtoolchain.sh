@@ -60,6 +60,11 @@ AVRLIBVER="avr-libc-2.1.0"
 NEWLIBVER="newlib-4.4.0.20231231"
 GDBVER="gdb-14.2"
 
+MPFRVER="mpfr-4.2.1"
+GMPVER="gmp-6.3.0"
+MPCVER="mpc-1.3.0"
+ISLVER="isl-0.24"
+
 #set the number of parallel makes
 MAKEJOBS=16
 
@@ -67,6 +72,7 @@ MAKEJOBS=16
 ROOTDIR=`pwd`
 LOGFILE="$ROOTDIR/buildlog.txt"
 HOSTINSTALLPATH="$ROOTDIR/toolchain-$TARGETARCHITECTURE-current"
+PREREQPATH="$ROOTDIR/toolchain-prerequisites"
 
 export PATH=$HOSTINSTALLPATH/bin:$PATH
 
@@ -224,10 +230,15 @@ function download_all_pkg () {
 
     prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
-    #log_msg "patching gdb to use libbcrypt"
-    #pushd $ROOTDIR/cross-toolchain/$GDBVER > /dev/null
-    #patch  -p1 -i ../../gdb.patch
-    #popd > /dev/null
+    prepare_source https://gmplib.org/download/gmp $GMPVER tar.xz 
+
+    prepare_source https://www.mpfr.org/mpfr-current $MPFRVER tar.xz
+
+    prepare_source https://www.multiprecision.org/downloads $MPCVER tar.gz
+
+    prepare_source https://gcc.gnu.org/pub/gcc/infrastructure $ISLVER tar.bz2
+
+
 }
 
 
@@ -291,6 +302,26 @@ cd $ROOTDIR/cross-toolchain
 # dl all sources and patch them if necessary
 download_all_pkg
 
+
+
+
+log_msg ">>>> build isl"
+ISLFLAGS+=" --prefix=$PREREQPATH/$ISLVER"
+conf_compile_source $ISLVER "$PREREQPATH/$ISLVER/lib/libgmp.a" "$ISLFLAGS"
+
+log_msg ">>>> build gmp"
+GMPFLAGS+=" --prefix=$PREREQPATH/$GMPVER"
+conf_compile_source $GMPVER "$PREREQPATH/$GMPVER/lib/libgmp.a" "$GMPFLAGS"
+
+log_msg ">>>> build mpfr"
+MPFRFLAGS+=" --prefix=$PREREQPATH/$MPFRVER"
+conf_compile_source $MPFRVER "$PREREQPATH/$MPFRVER/lib/libmpfr.a" "$MPFRFLAGS"
+
+log_msg ">>>> build mpc"
+MPCFLAGS+=" --prefix=$PREREQPATH/$MPCVER --with-mpfr=$PREREQPATH/$MPFRVER "
+conf_compile_source $MPCVER "$PREREQPATH/$MPCVER/lib/libmpc.a" "$MPCFLAGS"
+
+
 #-------------------------------- BINUTILS --------------------------------------------------
 # build binutils
 
@@ -309,12 +340,12 @@ conf_compile_source $BINUTILS "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$
 log_msg ">>>> build gcc"
 
 
-pushd $ROOTDIR/cross-toolchain/$GCCVER > /dev/null
-if [ ! -d gmp ]; then
-    log_msg "fetching gcc prerequisites"
-    ./contrib/download_prerequisites
-fi
-popd > /dev/null
+#pushd $ROOTDIR/cross-toolchain/$GCCVER > /dev/null
+#if [ ! -d gmp ]; then
+#    log_msg "fetching gcc prerequisites"
+#    ./contrib/download_prerequisites
+#fi
+#popd > /dev/null
 
 
 GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
@@ -323,6 +354,10 @@ GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
             --enable-languages=c,c++      \
             --enable-lto                  \
             --with-newlib                 \
+            --with-gmp=$PREREQPATH/$GMPVER\
+            --with-mpfr=$PREREQPATH/$MPFRVER\
+            --with-isl=$PREREQPATH/$ISLVER\
+            --with-mpc=$PREREQPATH/$MPCVER\
             --disable-shared              \
             --disable-decimal-float       \
             --disable-libmudflap          \
@@ -456,6 +491,10 @@ GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
             --enable-languages=c,c++      \
             --enable-lto                  \
 			--disable-libstdcxx-verbose \
+            --with-gmp=$PREREQPATH/$GMPVER\
+            --with-mpfr=$PREREQPATH/$MPFRVER\
+            --with-isl=$PREREQPATH/$ISLVER\
+            --with-mpc=$PREREQPATH/$MPCVER\
             --with-newlib                 \
             --disable-shared              \
             --disable-decimal-float       \
@@ -517,7 +556,11 @@ log_msg ">>>> build gdb"
 
 
 
-GDBFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --with-gmp-include=../../$GCCVER/gmp --with-mpfr-include=../../$GCCVER/mpfr/src --with-mpfr-lib=../../$GCCVER/cross-chain-$TARGETARCHITECTURE-obj/mpfr/src/.libs"
+GDBFLAGS+=" --target=$TARGETARCHITECTURE \
+            --prefix=$HOSTINSTALLPATH/ \
+            --with-gmp=$PREREQPATH/$GMPVER \
+            --with-mpfr=$PREREQPATH/$MPFRVER \
+ "
 
 
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
