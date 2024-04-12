@@ -62,7 +62,7 @@ GDBVER="gdb-14.2"
 
 MPFRVER="mpfr-4.2.1"
 GMPVER="gmp-6.3.0"
-MPCVER="mpc-1.3.0"
+MPCVER="mpc-1.3.1"
 ISLVER="isl-0.24"
 
 #set the number of parallel makes
@@ -318,7 +318,10 @@ MPFRFLAGS+=" --prefix=$PREREQPATH/$MPFRVER"
 conf_compile_source $MPFRVER "$PREREQPATH/$MPFRVER/lib/libmpfr.a" "$MPFRFLAGS"
 
 log_msg ">>>> build mpc"
-MPCFLAGS+=" --prefix=$PREREQPATH/$MPCVER --with-mpfr=$PREREQPATH/$MPFRVER "
+MPCFLAGS+=" --prefix=$PREREQPATH/$MPCVER \
+            --with-mpfr=$PREREQPATH/$MPFRVER \
+            --with-gmp=$PREREQPATH/$GMPVER\
+"
 conf_compile_source $MPCVER "$PREREQPATH/$MPCVER/lib/libmpc.a" "$MPCFLAGS"
 
 
