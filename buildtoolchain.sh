@@ -53,6 +53,7 @@ else
 fi
 
 
+
 #define package versions
 BINUTILS="binutils-2.42"
 GCCVER="gcc-13.2.0"
@@ -211,6 +212,7 @@ function download_all_pkg () {
     prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
     if [ "$TARGETARCHITECTURE" = "avr" ]; then
+    # consider to use the github releases directly, e.g. https://github.com/avrdudes/avr-libc/archive/refs/tags/avr-libc-2_1_0-release.tar.gz
         prepare_source http://download.savannah.gnu.org/releases/avr-libc $AVRLIBVER tar.bz2
 
     	log_msg "patching binutils"
@@ -428,7 +430,12 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
     log_msg ">>>> build avrlib"
 
 
-    LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/"
+    LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/ "
+
+    # configure script does not autodetect msys
+    if [ "$OS" = "windows" ]; then
+        LIBCFLAGS+=" --build=x86_64"
+    fi
 
     conf_compile_source $AVRLIBVER "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 
