@@ -63,7 +63,7 @@ GDBVER="gdb-14.2"
 MPFRVER="mpfr-4.2.1"
 GMPVER="gmp-6.3.0"
 MPCVER="mpc-1.3.1"
-ISLVER="isl-0.24"
+ISLVER="isl-0.26"
 
 #set the number of parallel makes
 MAKEJOBS=16
@@ -236,8 +236,8 @@ function download_all_pkg () {
 
     prepare_source https://www.multiprecision.org/downloads $MPCVER tar.gz
 
-    prepare_source https://gcc.gnu.org/pub/gcc/infrastructure $ISLVER tar.bz2
-
+#    prepare_source https://gcc.gnu.org/pub/gcc/infrastructure $ISLVER tar.bz2
+    prepare_source https://libisl.sourceforge.io $ISLVER tar.bz2
 
 }
 
@@ -305,16 +305,17 @@ download_all_pkg
 
 
 
-log_msg ">>>> build isl"
-ISLFLAGS+=" --prefix=$PREREQPATH/$ISLVER"
-conf_compile_source $ISLVER "$PREREQPATH/$ISLVER/lib/libgmp.a" "$ISLFLAGS"
 
 log_msg ">>>> build gmp"
 GMPFLAGS+=" --prefix=$PREREQPATH/$GMPVER"
 conf_compile_source $GMPVER "$PREREQPATH/$GMPVER/lib/libgmp.a" "$GMPFLAGS"
 
+log_msg ">>>> build isl"
+ISLFLAGS+=" --prefix=$PREREQPATH/$ISLVER --with-gmp-prefix=$PREREQPATH/$GMPVER"
+conf_compile_source $ISLVER "$PREREQPATH/$ISLVER/lib/libisl.a" "$ISLFLAGS"
+
 log_msg ">>>> build mpfr"
-MPFRFLAGS+=" --prefix=$PREREQPATH/$MPFRVER"
+MPFRFLAGS+=" --prefix=$PREREQPATH/$MPFRVER --with-gmp=$PREREQPATH/$GMPVER"
 conf_compile_source $MPFRVER "$PREREQPATH/$MPFRVER/lib/libmpfr.a" "$MPFRFLAGS"
 
 log_msg ">>>> build mpc"
