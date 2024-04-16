@@ -31,7 +31,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-linux-gcc-11.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-13.2.0.tar.gz
           retention-days: 5    
   buildwindows:
     strategy:
@@ -67,5 +67,5 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-windows-gcc-11.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-windows-gcc-13.2.0.tar.gz
           retention-days: 5
