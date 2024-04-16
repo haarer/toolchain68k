@@ -1,7 +1,10 @@
 cross-toolchain
 toolchain-*-current
+toolchain-prerequisites
 buildlog.txt
 *.o
 *.map
 *.lst
 *.elf
+*.log
+toolchain*.tar.gz

@@ -112,9 +112,11 @@ function prepare_source () {
             git pull
         fi
     else
-        if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
+        if [ ! -f $ROOTDIR/src-archives/$SOURCENAME.$ARCHTYPE ]; then
             log_msg " downloading $SOURCENAME"
+            pushd $ROOTDIR/src-archives > /dev/null
             wget $BASEURL/$SOURCENAME.$ARCHTYPE
+            popd > /dev/null
             log_msg " downloading $SOURCENAME finished"
         else
             log_msg " downloading $SOURCENAME skipped"
@@ -124,13 +126,13 @@ function prepare_source () {
     if [ ! -d $SOURCENAME ]; then
         log_msg " unpacking $SOURCENAME"
         if [ "$ARCHTYPE" == "tar.bz2" ]; then
-            tar -xjf $SOURCENAME.$ARCHTYPE
+            tar -xjf ../src-archives/$SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "tar.gz" ]; then
-            tar -xzf $SOURCENAME.$ARCHTYPE
+            tar -xzf ../src-archives/$SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "tar.xz" ]; then
-            tar -xJf $SOURCENAME.$ARCHTYPE
+            tar -xJf ../src-archives/$SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "zip" ]; then
-            unzip $SOURCENAME.$ARCHTYPE
+            unzip ../src-archives/$SOURCENAME.$ARCHTYPE
         elif [ "$ARCHTYPE" = "git" ]; then
             echo "" #nothing to do for git
         else
@@ -208,6 +210,7 @@ function purge_pkg () {
 
 function download_all_pkg () {
     [ ! -d  $ROOTDIR/cross-toolchain ] &&	mkdir  $ROOTDIR/cross-toolchain
+    [ ! -d  $ROOTDIR/src-archives ] &&	mkdir  $ROOTDIR/src-archives
 
     prepare_source http://ftp.gnu.org/gnu/binutils  $BINUTILS tar.bz2
 
