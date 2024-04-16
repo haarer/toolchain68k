@@ -206,6 +206,7 @@ function install_package () {
 function purge_pkg () {
     local PACKAGE=$1
     [ -d $ROOTDIR/cross-toolchain/$PACKAGE ] && rm -rf $ROOTDIR/cross-toolchain/$PACKAGE
+    [ -d $ROOTDIR/toolchain-prerequisites/$PACKAGE ] && rm -rf $ROOTDIR/toolchain-prerequisites/$PACKAGE
 }
 
 function download_all_pkg () {
@@ -257,6 +258,10 @@ if [ "$ACTION" = "purge" ]; then
     purge_pkg $AVRLIBVER
     purge_pkg $NEWLIBVER
     purge_pkg $GDBVER
+    purge_pkg $GMPVER
+    purge_pkg $ISLVER
+    purge_pkg $MPCVER
+    purge_pkg $MPFRVER
     exit 0
 fi
 
