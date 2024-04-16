@@ -15,7 +15,7 @@ jobs:
           submodules: "recursive"        
       - name: Install dependencies
         run: |
-          sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++
+          sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++ python3-pip
         shell: bash
       - name: Build toolchain
         run: |
