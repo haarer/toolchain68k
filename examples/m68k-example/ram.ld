@@ -27,6 +27,7 @@ SECTIONS
 
     __text_start = . ;
     *(.text)
+    *(.text.*)
     . = ALIGN (16);
 
     *(.eh_frame)
@@ -64,6 +65,7 @@ SECTIONS
     __data_start = .;
     *(.shdata)
     *(.data)
+    *(.data.*)
     *(.gnu.linkonce.d.*)
     . = ALIGN (16);
     _edata = .;
