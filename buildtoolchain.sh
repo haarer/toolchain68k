@@ -1,11 +1,11 @@
 #!/bin/bash
-# Copyright (c) 2014-2020, A.Haarer, All rights reserved. LGPLv3
+# Copyright (c) 2014-2024, A.Haarer, All rights reserved. LGPLv3
 
-# build 68k cross toolchain based on gcc
+# build m68k-elf or arm-none-eabi or avr cross toolchain based on gcc
 # set the number of make jobs as appropriate for build machine
 # set the path after installation : export PATH=/opt/crosschain/bin:$PATH
 
-# tested on host platforms : msys2 64bit on windows 10, debian 10.6
+# tested on host platforms : msys2 64bit on windows 10, ubuntu 23.10 (mantic)
 
 # usage :
 #    pass operating system as first parameter "linux" or "windows"
@@ -18,7 +18,7 @@
 #   http://www.msys2.org/
 
 
-# Tips:
+# Tips on windows:
 # to speed up things:  chose a location without
 # - indexing (dont use windows home dir )
 # - virus scanner ( add exclusion, or stop scanner)
@@ -219,16 +219,24 @@ function download_all_pkg () {
     # consider to use the github releases directly, e.g. https://github.com/avrdudes/avr-libc/archive/refs/tags/avr-libc-2_1_0-release.tar.gz
         prepare_source http://download.savannah.gnu.org/releases/avr-libc $AVRLIBVER tar.bz2
 
-    	log_msg "patching binutils"
         pushd $ROOTDIR/cross-toolchain/$BINUTILS > /dev/null
-    	patch  -p0 -i ../../avr_binutils.patch
+        if path -p0 -R --dry-run <../../avr_binutils.patch ; then
+          log_msg "patching binutils"
+          patch -p0 -s <../../avr_binutils.patch            
+        else
+          log_msg "already patched binutils"
+        fi
         popd > /dev/null
     else
         prepare_source ftp://sourceware.org/pub/newlib $NEWLIBVER tar.gz
-
-        log_msg "patching newlib to use ssize_t on libgloss read and write functions"
+     
         pushd $ROOTDIR/cross-toolchain/$NEWLIBVER > /dev/null
-        patch  -p1 -i ../../newlib.patch
+        if path -p1 -R --dry-run <../../newlib.patch ; then
+          log_msg "patching newlib to use ssize_t on libgloss read and write functions"
+          patch  -p1 -i ../../newlib.patch
+        else
+          log_msg "already patched newlib"
+        fi
         popd > /dev/null
 
     fi
@@ -312,9 +320,6 @@ cd $ROOTDIR/cross-toolchain
 
 # dl all sources and patch them if necessary
 download_all_pkg
-
-
-
 
 
 log_msg ">>>> build gmp"
@@ -420,6 +425,7 @@ if [ ! -f gcc/include/limits.h ]; then
 else
     log_msg "building $SOURCEPACKAGE skipped"
 fi
+
 # to do : extract number from gccver
 if [ ! -f $HOSTINSTALLPATH/lib/gcc/$TARGETARCHITECTURE/13.2.0/include/limits.h ]; then
     log_msg "install $SOURCEPACKAGE"
@@ -455,8 +461,6 @@ else
 
     log_msg ">>>> build newlib"
 
-
-
     LIBCFLAGS+=" --target=$TARGETARCHITECTURE \
                  --prefix=$HOSTINSTALLPATH/ \
                  --enable-newlib-reent-small \
@@ -484,13 +488,13 @@ else
                  --enable-newlib-nano-malloc \
                  --enable-fast-install"
 
-BASE_CPPFLAGS="-pipe"
-BASE_LDFLAGS=
-BASE_CFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections"
-BASE_CXXFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections -fno-exceptions"
-export CPPFLAGS="${BASE_CPPFLAGS-} ${CPPFLAGS-}"
-export LDFLAGS="${BASE_LDFLAGS-} ${LDFLAGS-}"
-export CFLAGS_FOR_TARGET="-g -Os ${BASE_CFLAGS_FOR_TARGET-} ${CFLAGS_FOR_TARGET-}"
+    BASE_CPPFLAGS="-pipe"
+    BASE_LDFLAGS=
+    BASE_CFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections"
+    BASE_CXXFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections -fno-exceptions"
+    export CPPFLAGS="${BASE_CPPFLAGS-} ${CPPFLAGS-}"
+    export LDFLAGS="${BASE_LDFLAGS-} ${LDFLAGS-}"
+    export CFLAGS_FOR_TARGET="-g -Os ${BASE_CFLAGS_FOR_TARGET-} ${CFLAGS_FOR_TARGET-}"
 
 
     conf_compile_source $NEWLIBVER "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
@@ -543,26 +547,18 @@ pushd $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-ob
 log_msg "CCS sourcepackage= $SOURCEPACKAGE=$GCCVER"
 log_msg "CCS cfgstring $CONFIGURESTRING"
 
-# must be reconfigured (with headers now)
-if [ ! -f config.status.nono ]; then
-    log_msg "configuring $SOURCEPACKAGE"
-    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-config.2.log || exit 1
-    log_msg "configuring $SOURCEPACKAGE finished"
-else
-    log_msg "configuring $SOURCEPACKAGE skipped"
-fi
+# must always be reconfigured (with headers now)
+log_msg "configuring $SOURCEPACKAGE"
+../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-config.2.log || { log_err "configuring $SOURCEPACKAGE failed"; exit 1;}
+log_msg "configuring $SOURCEPACKAGE finished"
 
 
 log_msg "building $SOURCEPACKAGE"
-make -j $MAKEJOBS  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.2.log || exit 1
-if [ $? -eq 0 ]; then
-    log_msg "building $SOURCEPACKAGE finished"
-else
-    log_err "building $SOURCEPACKAGE failed"
-fi
+make -j $MAKEJOBS  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.2.log || { log_err "building $SOURCEPACKAGE failed"; exit 1;}
+log_msg "building $SOURCEPACKAGE finished"
 
 log_msg "install $SOURCEPACKAGE"
-make install  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.2.log || exit 1
+make install  2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.2.log || { log_err "install $SOURCEPACKAGE failed";  exit 1;}
 log_msg "install $SOURCEPACKAGE finished"
 
 popd > /dev/null

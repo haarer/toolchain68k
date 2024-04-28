@@ -7,9 +7,9 @@ This supports development for various m68k boards, Arduinos and STM32 Boards (ST
 
 The used toolchain versions are
  * gcc 13.2.0
- * binutils 2.42 (with the ususal avr size patch)
+ * binutils 2.42 (with the ususal avr size patch, see [avr_binutils.patch](avr_binutils.patch))
  * gdb 14.2
- * newlib 4.4.0.20231231
+ * newlib 4.4.0.20231231 (with a patch to libgloss write() and read() functions, see [newlib.patch](newlib.patch))
  * avr-libc 2.1.0
 
 The build script can build for the following target architectures
@@ -29,7 +29,7 @@ The Platform URL to be used for platformio projects are
  * https://github.com/haarer/platform-m68k.git
  * https://github.com/haarer/platform-ststm32.git
 
-There are example projects for m68k and avr.
+There are example projects for m68k avr and arm-none-eabi
 
 # Prepare Build Environment for Windows and MSYS
 all commands are to be typed into the msys shell
@@ -93,14 +93,14 @@ sh install_req_pkg_fedora.sh
 # Building and Installing of the Toolchain    
 Set the wanted target architecture by passing it to the build script as second parameter. In order to change or add target specific build options, see the arm-none-eabi target in the script how to do this.
 ```
-bash buildtoolchain linux m68k-elf
+bash buildtoolchain.sh linux m68k-elf
 ```
 
 The script obtains the sources, unpacks them and builds the tools of the toolchain.
 
 The progress of the build is written to a logfile: ```buildlog.txt```
 
-Note that the toolchain script does not installs the toolchain, it always creates platformio toolchain packages. 
+Note that the toolchain script does not install the toolchain, it always creates platformio toolchain packages. 
 
 # Testing the Toolchain
 Add the path to the binaries and run gcc
