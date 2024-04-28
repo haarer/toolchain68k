@@ -226,10 +226,11 @@ function download_all_pkg () {
     else
         prepare_source ftp://sourceware.org/pub/newlib $NEWLIBVER tar.gz
 
-        log_msg "patching newlib to automatically determine _LDBL_EQ_DBL"
+        log_msg "patching newlib to use ssize_t on libgloss read and write functions"
         pushd $ROOTDIR/cross-toolchain/$NEWLIBVER > /dev/null
         patch  -p1 -i ../../newlib.patch
         popd > /dev/null
+
     fi
 
     prepare_source ftp://ftp.gwdg.de/pub/misc/gcc/releases/$GCCVER $GCCVER tar.xz
@@ -305,7 +306,7 @@ else
 	EXECUTEABLESUFFIX=""
 fi
 
-
+[ ! -d  $ROOTDIR/cross-toolchain ] &&	mkdir  $ROOTDIR/cross-toolchain
 cd $ROOTDIR/cross-toolchain
 
 

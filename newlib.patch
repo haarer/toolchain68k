@@ -1,38 +1,22 @@
-index 893a5d064..e60b8e7f4 100644
---- a/newlib/libc/include/math.h
-+++ b/newlib/libc/include/math.h
-@@ -4,7 +4,7 @@ 
- 
- #include <sys/reent.h>
- #include <sys/cdefs.h>
--#include <machine/ieeefp.h>
-+#include <ieeefp.h>
- #include "_ansi.h"
- 
- _BEGIN_STD_C
-
-index 2082dfdb1..407d214e8 100644
---- a/newlib/libc/include/sys/config.h
-+++ b/newlib/libc/include/sys/config.h
-@@ -3,6 +3,7 @@ 
- 
- #include <machine/ieeefp.h>  /* floating point macros */
- #include <sys/features.h>	/* POSIX defs */
-+#include <float.h>
- 
- #ifdef __aarch64__
- #define MALLOC_ALIGNMENT 16
-@@ -297,4 +298,13 @@ 
- #define _MB_EXTENDED_CHARSETS_WINDOWS 1
- #endif
- 
-+/* Figure out if long double is the same size as double. If the system
-+ * doesn't provide long double, then those values will be undefined
-+ * and cpp will substitute 0 for them in the test
-+ */
-+#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MIN_EXP == DBL_MIN_EXP && \
-+    LDBL_MAX_EXP == DBL_MAX_EXP
-+#define _LDBL_EQ_DBL
-+#endif
-+
- #endif /* __SYS_CONFIG_H__ */
+--- ./libgloss/read.c	2023-12-31 18:00:18.000000000 +0100
++++ ../../cross-toolchain/newlib-4.4.0.20231231/libgloss/read.c	2024-04-28 20:58:57.830378679 +0200
+@@ -20,7 +20,7 @@
+  * read  -- read bytes from the serial port. Ignore fd, since
+  *          we only have stdin.
+  */
+-int
++ssize_t
+ read (int fd,
+        void *buf_,
+        size_t nbytes)
+--- ./libgloss/write.c	2023-12-31 18:00:18.000000000 +0100
++++ ../../cross-toolchain/newlib-4.4.0.20231231/libgloss/write.c	2024-04-28 20:59:01.518392880 +0200
+@@ -21,7 +21,7 @@
+  *          stdout and stderr are the same. Since we have no filesystem,
+  *          open will only return an error.
+  */
+-int
++ssize_t
+ write (int fd,
+        const void *buf_,
+        size_t nbytes)
