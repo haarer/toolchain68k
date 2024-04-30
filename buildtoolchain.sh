@@ -220,9 +220,9 @@ function download_all_pkg () {
         prepare_source http://download.savannah.gnu.org/releases/avr-libc $AVRLIBVER tar.bz2
 
         pushd $ROOTDIR/cross-toolchain/$BINUTILS > /dev/null
-        if path -p0 -R --dry-run <../../avr_binutils.patch ; then
+        if ! patch -R -p0 -f -s --dry-run <../../avr_binutils.patch >/dev/null ; then
           log_msg "patching binutils"
-          patch -p0 -s <../../avr_binutils.patch            
+          patch -p0  <../../avr_binutils.patch            
         else
           log_msg "already patched binutils"
         fi
@@ -231,9 +231,9 @@ function download_all_pkg () {
         prepare_source ftp://sourceware.org/pub/newlib $NEWLIBVER tar.gz
      
         pushd $ROOTDIR/cross-toolchain/$NEWLIBVER > /dev/null
-        if path -p1 -R --dry-run <../../newlib.patch ; then
+        if ! patch -R -p0 -f -s --dry-run <../../newlib.patch ; then
           log_msg "patching newlib to use ssize_t on libgloss read and write functions"
-          patch  -p1 -i ../../newlib.patch
+          patch  -p0  <../../newlib.patch
         else
           log_msg "already patched newlib"
         fi
