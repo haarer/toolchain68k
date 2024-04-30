@@ -1,5 +1,5 @@
---- ./libgloss/read.c	2023-12-31 18:00:18.000000000 +0100
-+++ ../../cross-toolchain/newlib-4.4.0.20231231/libgloss/read.c	2024-04-28 20:58:57.830378679 +0200
+--- libgloss/read.c	2023-12-31 18:00:18.000000000 +0100
++++ libgloss/read.c	2024-04-28 20:58:57.830378679 +0200
 @@ -20,7 +20,7 @@
   * read  -- read bytes from the serial port. Ignore fd, since
   *          we only have stdin.
@@ -9,8 +9,8 @@
  read (int fd,
         void *buf_,
         size_t nbytes)
---- ./libgloss/write.c	2023-12-31 18:00:18.000000000 +0100
-+++ ../../cross-toolchain/newlib-4.4.0.20231231/libgloss/write.c	2024-04-28 20:59:01.518392880 +0200
+--- libgloss/write.c	2023-12-31 18:00:18.000000000 +0100
++++ libgloss/write.c	2024-04-28 20:59:01.518392880 +0200
 @@ -21,7 +21,7 @@
   *          stdout and stderr are the same. Since we have no filesystem,
   *          open will only return an error.
