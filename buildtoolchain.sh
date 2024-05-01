@@ -195,7 +195,7 @@ function conf_compile_source () {
 }
 
 
-#function to install package
+#function to install a single package
 function install_package () {
     make install 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log
     if [ $? -eq 0 ]; then
@@ -205,6 +205,7 @@ function install_package () {
     fi
 }
 
+#remove all intermediate products of a single package
 function purge_pkg () {
     local PACKAGE=$1
     [ -d $ROOTDIR/cross-toolchain/$PACKAGE ] && rm -rf $ROOTDIR/cross-toolchain/$PACKAGE
@@ -253,13 +254,76 @@ function download_all_pkg () {
 
     prepare_source https://www.multiprecision.org/downloads $MPCVER tar.gz
 
-#    prepare_source https://gcc.gnu.org/pub/gcc/infrastructure $ISLVER tar.bz2
     prepare_source https://libisl.sourceforge.io $ISLVER tar.bz2
 
 }
 
 
+#---------------------------------------------------------------------------------
+#build pio package
+function make_pio_package () {
 
+    #works only in bash
+    PACKAGEVER=${GCCVER/#gcc-}
+
+    if [[ $OS = windows* ]]; then
+        EXECUTEABLESUFFIX=".exe"
+        echo "on windows, copy msys2 dlls"
+        for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll
+        do
+          cp  /usr/bin/$DLLFILE $HOSTINSTALLPATH/bin
+        done
+
+        cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
+        {
+            "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+            "name": "toolchain-$TARGETARCHITECTURE-current",
+            "system": [
+                "windows",
+                "windows_amd64",
+                "windows_x86"
+            ],
+            "url": "https://github.com/haarer/toolchain68k",
+            "version": "$PACKAGEVER"
+        }
+EOFWINDOWSVARIANT
+
+    elif [[ $OS = raspian* ]]; then echo "on raspian"
+        cat >$HOSTINSTALLPATH/package.json <<EOFRASPIVARIANT
+        {
+            "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+            "name": "toolchain-$TARGETARCHITECTURE-current",
+            "system": [
+                "linux_armv6l",
+                "linux_armv7l",
+                "linux_armv8l"
+            ],
+            "url": "https://github.com/haarer/toolchain68k",
+            "version": "$PACKAGEVER"
+        }
+EOFRASPIVARIANT
+
+    else
+        echo "on linux"
+        cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
+        {
+            "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
+            "name": "toolchain-$TARGETARCHITECTURE-current",
+            "system": [
+                "linux_x86_64"
+            ],
+            "url": "https://github.com/haarer/toolchain68k",
+            "version": "$PACKAGEVER"
+        }
+EOFLINUXVARIANT
+
+    fi
+
+    log_msg "packaging.."
+    cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
+    sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
+
+}
 
 if [ "$ACTION" = "purge" ]; then
     rm -rf $HOSTINSTALLPATH
@@ -276,13 +340,15 @@ if [ "$ACTION" = "purge" ]; then
     exit 0
 fi
 
-
 if [ "$ACTION" = "download" ]; then
     download_all_pkg
     exit 0
 fi
 
-
+if [ "$ACTION" = "package" ]; then
+    make_pio_package
+    exit 0
+fi
 
 export CFLAGS='-O2 -pipe'
 export CXXFLAGS='-O2 -pipe'
@@ -583,69 +649,7 @@ GDBFLAGS+=" --target=$TARGETARCHITECTURE \
 
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
 
+make_pio_package
 
-#---------------------------------------------------------------------------------
-#build pio package
-
-#works only in bash
-PACKAGEVER=${GCCVER/#gcc-}
-
-if [[ $OS = windows* ]]; then
-EXECUTEABLESUFFIX=".exe"
-echo "on windows, copy msys2 dlls"
-for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll
-#for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll libzstd.dll
-do
-  cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
-done
-
-cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
-{
-    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
-    "name": "toolchain-$TARGETARCHITECTURE-current",
-    "system": [
-        "windows",
-        "windows_amd64",
-        "windows_x86"
-    ],
-    "url": "https://github.com/haarer/toolchain68k",
-    "version": "$PACKAGEVER"
-}
-EOFWINDOWSVARIANT
-
-elif [[ $OS = raspian* ]]; then echo "on raspian"
-cat >$HOSTINSTALLPATH/package.json <<EOFRASPIVARIANT
-{
-    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
-    "name": "toolchain-$TARGETARCHITECTURE-current",
-    "system": [
-        "linux_armv6l",
-        "linux_armv7l",
-        "linux_armv8l"
-    ],
-    "url": "https://github.com/haarer/toolchain68k",
-    "version": "$PACKAGEVER"
-}
-EOFRASPIVARIANT
-
-else
-echo "on linux"
-cat >$HOSTINSTALLPATH/package.json <<EOFLINUXVARIANT
-{
-    "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
-    "name": "toolchain-$TARGETARCHITECTURE-current",
-    "system": [
-        "linux_x86_64"
-    ],
-    "url": "https://github.com/haarer/toolchain68k",
-    "version": "$PACKAGEVER"
-}
-EOFLINUXVARIANT
-
-fi
-
-log_msg "packaging.."
-cd $HOSTINSTALLPATH ;tar czf ../toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz * ; cd ..
-sha1sum toolchain-$TARGETARCHITECTURE-$OS-$GCCVER.tar.gz
 
 
