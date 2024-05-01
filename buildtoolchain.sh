@@ -590,8 +590,9 @@ PACKAGEVER=${GCCVER/#gcc-}
 
 if [[ $OS = windows* ]]; then
 EXECUTEABLESUFFIX=".exe"
-echo "on windows, copy mingw dlls"
-for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll libzstd.dll
+echo "on windows, copy msys2 dlls"
+for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll
+#for DLLFILE in libgmp-10.dll libiconv-2.dll libintl-8.dll libwinpthread-1.dll libexpat-1.dll libzstd.dll
 do
   cp  /mingw64/bin/$DLLFILE $HOSTINSTALLPATH/bin
 done
