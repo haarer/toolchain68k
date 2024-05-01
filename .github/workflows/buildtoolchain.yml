@@ -60,7 +60,7 @@ jobs:
           bash runtests.sh  ${{ matrix.architecture }}
       - name: Build platformio examples with toolchain
         run: |
-          pacman -S python3-pip
+          pacman -S --needed --noconfirm  python3-pip
           pip3 install --upgrade pip
           pip3 install -U https://github.com/platformio/platformio/archive/develop.zip
           bash runtests_pio.sh  ${{ matrix.architecture }}
