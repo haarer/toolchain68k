@@ -19,6 +19,8 @@
 
 
 # Tips on windows:
+# please use the MSYS shell, not UCRT
+#
 # to speed up things:  chose a location without
 # - indexing (dont use windows home dir )
 # - virus scanner ( add exclusion, or stop scanner)
@@ -231,7 +233,7 @@ function download_all_pkg () {
         prepare_source ftp://sourceware.org/pub/newlib $NEWLIBVER tar.gz
      
         pushd $ROOTDIR/cross-toolchain/$NEWLIBVER > /dev/null
-        if ! patch -R -p0 -f -s --dry-run <../../newlib.patch ; then
+        if ! patch -R -p0 -f -s --dry-run <../../newlib.patch >/dev/null ; then
           log_msg "patching newlib to use ssize_t on libgloss read and write functions"
           patch  -p0  <../../newlib.patch
         else
@@ -338,7 +340,7 @@ log_msg ">>>> build mpc"
 MPCFLAGS+=" --prefix=$PREREQPATH/$MPCVER \
             --with-mpfr=$PREREQPATH/$MPFRVER \
             --with-gmp=$PREREQPATH/$GMPVER\
-"
+            "
 conf_compile_source $MPCVER "$PREREQPATH/$MPCVER/lib/libmpc.a" "$MPCFLAGS"
 
 
