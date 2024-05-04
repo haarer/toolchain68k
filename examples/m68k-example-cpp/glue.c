@@ -1,10 +1,10 @@
+// see porting.info of newlib, mostly derived from the sample
+
 #include <uart.h>
-#include <reent.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <sys/time.h>
-#include <string.h>
+#include <sys/types.h>
+
 #undef errno
 extern int errno;
 
@@ -17,7 +17,6 @@ char **environ = __env;
 void *__dso_handle = 0;
 // not solved:  -fno-use-cxa-atexit
 
-// void* _fini = 0;
 /*
  * sbrk -- changes heap size size. Get nbytes more
  *         RAM. We just increment a pointer in what's
@@ -51,147 +50,44 @@ void *_sbrk_r(struct _reent *r, ptrdiff_t n)
   return base;
 }
 
-int _close_r(struct _reent *r, int f)
+/*
+ * getpid -- only one process, so just return 1.
+ */
+#define __MYPID 1
+int getpid()
 {
-  return -1;
+  return __MYPID;
 }
 
-int _execve_r(struct _reent *r, const char *n, char *const *a, char *const *e)
+void _exit(int)
 {
-  r->_errno = ENOMEM;
-  return -1;
+  for (;;)
+    ;
 }
 
-int _fork_r(struct _reent *r)
+/*
+ * kill -- go out via exit...
+ */
+int kill(pid, sig)
+int pid;
+int sig;
 {
-  r->_errno = EAGAIN;
-  return -1;
-}
-
-int _fstat_r(struct _reent *r, int f, struct stat *s)
-{
-  s->st_mode = S_IFCHR;
+  if (pid == __MYPID)
+    _exit(sig);
   return 0;
 }
-
-int _getpid_r(struct _reent *r)
+/*
+ * isatty -- returns 1 if connected to a terminal device,
+ *           returns 0 if not. Since we're hooked up to a
+ *           serial port, we'll say yes and return a 1.
+ */
+int isatty(fd)
+int fd;
 {
-  return 1;
-}
-
-int isatty(int file)
-{
-  return 1;
-}
-
-int _kill_r(struct _reent *r, int p, int s)
-{
-  r->_errno = EINVAL;
-  return (-1);
-}
-
-int _link_r(struct _reent *r, const char *o, const char *n)
-{
-  r->_errno = EMLINK;
-  return -1;
-}
-
-_off_t _lseek_r(struct _reent *r, int f, _off_t p, int d)
-{
-  return 0;
-}
-
-int _open_r(struct _reent *r, const char *n, int f, int m)
-{
-  return -1;
-}
-
-int _stat_r(struct _reent *r, const char *f, struct stat *s)
-{
-  s->st_mode = S_IFCHR;
-  return 0;
-}
-
-_CLOCK_T_ _times_r(struct _reent *r, struct tms *t)
-{
-  return -1;
-}
-
-int _unlink_r(struct _reent *r, const char *n)
-{
-  r->_errno = ENOENT;
-  return -1;
-}
-
-int _wait_r(struct _reent *r, int *s)
-{
-  r->_errno = ECHILD;
-  return -1;
-}
-
-_ssize_t _read_r(struct _reent *r, int f, void *b, size_t s)
-{
-  size_t todo;
-  char *ptr = b;
-  char ch;
-  if (r->_stdin && f == fileno(r->_stdin))
-  {
-    for (todo = 0; todo < s; todo++)
-    {
-      ch = (char)i_uartGetch();
-      if (ch == -1)
-      {
-        if (todo == 0)
-          return (-1);
-        break;
-      }
-      *ptr++ = ch;
-    }
-    return todo;
-  }
-  else
-  {
-    r->_errno = EBADF;
-    return -1;
-  }
-}
-
-_ssize_t _write_r(struct _reent *r, int f, const void *b, size_t s)
-{
-  size_t todo;
-  char *ptr = (char *)b;
-  if ((r->_stdout && f == fileno(r->_stdout)) || (r->_stderr && f == fileno(r->_stderr)))
-  {
-    for (todo = 0; todo < s; todo++)
-      v_uartPutch(*ptr++);
-    return s;
-  }
-  else
-  {
-    r->_errno = EBADF;
-    return -1;
-  }
+  return (1);
 }
 
 int __ssputws_r(char)
-{
-  return 0;
-}
-
-void __malloc_lock(struct _reent *r)
-{
-}
-
-void __malloc_unlock(struct _reent *r)
-{
-}
-
-int _gettimeofday_r(struct _reent *r, struct timeval *p, void *tz)
-{
-  return 0;
-}
-
-int settimeofday(const struct timeval *t, const struct timezone *tz)
 {
   return 0;
 }
@@ -201,16 +97,42 @@ int getentropy(void *)
   return 0;
 }
 
-void _exit(int)
+/*
+ * open -- open a file descriptor. We don't have a filesystem, so
+ *         we return an error.
+ */
+int open(buf, flags, mode)
+char *buf;
+int flags;
+int mode;
 {
-  for (;;)
-    ;
+  errno = EIO;
+  return (-1);
 }
 
-int lseek(int __fildes, _off_t __offset, int __whence)
+/*
+ * close -- close a file descriptor. We don't need
+ *          to do anything, but pretend we did.
+ */
+int close(fd)
+int fd;
 {
-  return 0;
+  return (0);
 }
+
+/*
+ * lseek -- move read/write pointer. Since a serial port
+ *          is non-seekable, we return an error.
+ */
+off_t lseek(fd, offset, whence)
+int fd;
+off_t offset;
+int whence;
+{
+  errno = ESPIPE;
+  return ((off_t)-1);
+}
+
 int fstat(int __fd, struct stat *__sbuf)
 {
   return 0;
