@@ -1,0 +1,10 @@
+{
+    "C_Cpp.default.compilerPath": "../../toolchain-m68k-elf-current/bin/m68k-elf-g++.exe",
+    "C_Cpp.default.systemIncludePath": [
+        "../../toolchain-m68k-elf-current/m68k-elf/include",
+        "../../toolchain-m68k-elf-current/m68k-elf/include/c++/13.2.0",
+        "../../toolchain-m68k-elf-current/m68k-elf/include/c++/13.2.0/m68k-elf",
+        "../../toolchain-m68k-elf-current/lib/gcc/m68k-elf/13.2.0/include"
+
+    ]
+}
