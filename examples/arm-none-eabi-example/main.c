@@ -1,6 +1,8 @@
 
 /* a simple blink example */
 #include "stm32f10x.h"
+#include <stm32f10x_rcc.h>
+#include <stm32f10x_gpio.h>
 
 GPIO_InitTypeDef GPIO_InitStructure;
 

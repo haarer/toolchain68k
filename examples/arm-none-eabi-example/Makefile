@@ -69,3 +69,6 @@ debugserver:
 
 gdbgui:
 	/c/tools/python27/python.exe -m gdbgui --gdb $(GDB) --gdb-args="-se='$(TARGET).elf' --eval-command='target extended-remote localhost:4242'"
+
+unpack:
+	( cd .. && [ -d "STM32F10x_StdPeriph_Lib_V3.5.0/Libraries" ] || unzip ../binary_assets/en.stsw-stm32054.zip )
