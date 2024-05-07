@@ -3,12 +3,14 @@
 # please use the MSYS2 shell, not the UCRT shell. 
 #
 # install MSYS2 package requirement for building the tool chain
-pacman -S --needed --noconfirm git msys2-runtime unzip make tar flex bison diffutils texinfo patch mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git
+pacman -S --needed --noconfirm git msys2-runtime unzip make tar flex bison diffutils texinfo patch mingw-w64-x86_64-gcc mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winstorecompat-git libexpat-devel
 
 ## all after this is only needed if avrdude shall use usb devices
 
 # pull additonal libraries (avrdude)
 #pacman -S --needed mingw-w64-x86_64-libusb mingw-w64-x86_64-libusb-compat-git mingw-w64-x86_64-libftdi cmake
+
+#mingw-w64-x86_64-libusb
 
 # nomally the avrdude should be updated to use the new libusb-1.0 but ...
 # 

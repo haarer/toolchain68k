@@ -15,7 +15,7 @@ jobs:
           submodules: "recursive"        
       - name: Install dependencies
         run: |
-          sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++
+          sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++ libexpat-dev
         shell: bash
       - name: Build toolchain
         run: |
@@ -50,7 +50,7 @@ jobs:
         uses: msys2/setup-msys2@v2.22.0
         with:
           msystem: MINGW64
-          install: git mingw-w64-x86_64-toolchain make wget bzip2 tar flex bison unzip diffutils texinfo autoconf patch
+          install: git mingw-w64-x86_64-toolchain make wget bzip2 tar flex bison unzip diffutils texinfo autoconf patch libexpat-devel
           update: true
       - name: Build toolchain
         run: |

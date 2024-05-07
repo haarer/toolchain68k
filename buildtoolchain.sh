@@ -269,7 +269,7 @@ function make_pio_package () {
     if [[ $OS = windows* ]]; then
         EXECUTEABLESUFFIX=".exe"
         echo "on windows, copy msys2 dlls"
-        for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll
+        for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll msys-stdc++-6.dll
         do
           cp  /usr/bin/$DLLFILE $HOSTINSTALLPATH/bin
         done
@@ -325,6 +325,26 @@ EOFLINUXVARIANT
 
 }
 
+function build_gdb () {
+#---------------------------------------------------------------------------------
+#build gdb
+
+log_msg ">>>> build gdb"
+
+
+
+GDBFLAGS+=" --target=$TARGETARCHITECTURE \
+            --prefix=$HOSTINSTALLPATH/ \
+            --with-gmp=$PREREQPATH/$GMPVER \
+            --with-mpfr=$PREREQPATH/$MPFRVER \
+            --with-expat
+ "
+
+
+conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
+}
+
+
 if [ "$ACTION" = "purge" ]; then
     rm -rf $HOSTINSTALLPATH
     rm $ROOTDIR/*.log
@@ -344,6 +364,12 @@ if [ "$ACTION" = "download" ]; then
     download_all_pkg
     exit 0
 fi
+
+if [ "$ACTION" = "build_gdb" ]; then
+    build_gdb
+    exit 0
+fi
+
 
 if [ "$ACTION" = "package" ]; then
     make_pio_package
@@ -632,22 +658,7 @@ log_msg "install $SOURCEPACKAGE finished"
 popd > /dev/null
 
 
-
-#---------------------------------------------------------------------------------
-#build gdb
-
-log_msg ">>>> build gdb"
-
-
-
-GDBFLAGS+=" --target=$TARGETARCHITECTURE \
-            --prefix=$HOSTINSTALLPATH/ \
-            --with-gmp=$PREREQPATH/$GMPVER \
-            --with-mpfr=$PREREQPATH/$MPFRVER \
- "
-
-
-conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
+build_gdb
 
 make_pio_package
 
