@@ -29,9 +29,9 @@ case $TARGETARCHITECTURE in
     test_build_result "examples/arm-none-eabi-example/arm-test.bin" 
     ( cd examples/arm-none-eabi-example ; make clean )
 
-    ( cd examples/arm-none-eabi-example-baremetal ; make clean && make arm-test.bin )
-    test_build_result "examples/arm-none-eabi-example-baremetal/arm-test.bin" 
-    ( cd examples/arm-none-eabi-example-baremetal ; make clean )
+    ( cd examples/arm-none-eabi-example-cpp ; make clean && make arm-test.bin )
+    test_build_result "examples/arm-none-eabi-example-cpp/arm-test.bin" 
+    ( cd examples/arm-none-eabi-example-cpp ; make clean )
   ;;
 "m68k-elf")
     ( cd examples/m68k-example && make clean && make files )

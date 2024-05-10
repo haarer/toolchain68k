@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc",
+                "../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc",
+                "../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport",
+                "../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
+                "../../toolchain-arm-none-eabi-current/arm-none-eabi/include",
+                "../../toolchain-arm-none-eabi-current/arm-none-eabi/include/c++/13.2.0",
+                "../../toolchain-arm-none-eabi-current/arm-none-eabi/include/c++/13.2.0/arm-none-eabi",
+                "../../toolchain-arm-none-eabi-current/lib/gcc/arm-none-eabi/13.2.0/include"
+        
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "cStandard": "gnu89",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-arm",
+            "configurationProvider": "ms-vscode.makefile-tools",
+            "compilerPath": "c:/tools/msys64/home/mac/toolchain68k/toolchain-arm-none-eabi-current/bin/arm-none-eabi-gcc.exe"
+        }
+    ],
+    "version": 4
+}
