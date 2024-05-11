@@ -4,7 +4,7 @@
 TARGET := arm-test
 CPU:= cortex-m3
 
-STMLIBDIR :=../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
+#STMLIBDIR :=../STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
 
 CXX := arm-none-eabi-g++
 CC := arm-none-eabi-gcc
@@ -27,39 +27,47 @@ CFLAGS += -mcpu=$(CPU) -mthumb $(INCLUDES) $(CDEFS) -Wall -Werror  -Os -std=c99 
 
 #LFLAGS += -O0 -Wl,--gc-sections -mcpu=$(CPU) -Ttt.ld "-Wl,-Map,$(TARGET).map" "-Lldscripts" -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols 
 
-LFLAGS += -Os -mcpu=$(CPU) -Tmem.ld -Tlibs.ld -Tsections.ld  "-Wl,-Map,$(TARGET).map" "-Lldscripts" -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols 
+LFLAGS += -Os -mcpu=$(CPU) -Tmem.ld -Tlibs.ld -Tsections.ld  "-Wl,-Map,build/$(TARGET).map" "-Lldscripts" -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols 
 LIBS += -lm -lgcc -lstdc++
 
 # determine the object files
-OBJ := main.o \
-	uart.o \
-	glue.o \
-	system.o \
-	startup.o 
+OBJ := build/main.o \
+	build/uart.o \
+	build/glue.o \
+	build/system.o \
+	build/startup.o 
 
 
 # link the program
-$(TARGET).elf: $(OBJ) $(AOBJ) 
+build/$(TARGET).elf: $(OBJ) $(AOBJ) 
 	@echo "---> link project ..."
 	$(CC) $(AOBJ) $(OBJ) $(LIBS) $(LFLAGS) -o $@
 
-
 # build rule for assembler files
-%.o: %.s
-	$(CC) -c $(AFLAGS) -Wa,-adhlns=$<.lst $< -o $@
+build/%.o: %.s
+	$(CC) -c $(AFLAGS) -Wa,-adhlns=$@.lst $< -o $@
+
+# build rule for cpp
+build/%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) -Wa,-adhlns=$@.lst $< -o $@
+
+# build rule for c
+build/%.o: %.c
+	$(CC) -c $(CFLAGS) -Wa,-adhlns=$@.lst $< -o $@
+
 
 # clean project
 clean:
-	rm -f $(OBJ) $(AOBJ) *.hex *.bin *.elf *.map *~ *.lst
+	rm -f $(OBJ) $(AOBJ) *.hex *.bin build/*.elf build/*.map *~ build/*.lst
 
 # calculate sizes for program
-size: $(TARGET).elf
-	$(SIZE) $(OBJ) $(AOBJ) $(TARGET).elf
+size: build/$(TARGET).elf
+	$(SIZE) build/$(OBJ) $(AOBJ) $<
 	@echo ""
-	$(SIZE) --format avr --mcu $(CPU) $(TARGET).elf
+	$(SIZE) --format avr --mcu $(CPU) $<
 
 # print target info and generate lss
-info: $(TARGET).elf
+info: build/$(TARGET).elf
 	$(OBJDUMP) --headers $<
 	$(OBJDUMP) -h -S -z $< > $@
 
@@ -67,7 +75,7 @@ info: $(TARGET).elf
 	arm-none-eabi-objcopy -O binary $< $@
 	arm-none-eabi-objdump -d $< >$(TARGET).dis
 
-flash: $(TARGET).bin
+flash: build/$(TARGET).bin
 	st-flash write $< 0x8000000
 
 debugserver:
