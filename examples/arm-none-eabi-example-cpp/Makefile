@@ -58,13 +58,11 @@ build/%.o: %.c
 
 # clean project
 clean:
-	rm -f $(OBJ) $(AOBJ) *.hex *.bin build/*.elf build/*.map *~ build/*.lst
+	rm -f $(OBJ) $(AOBJ) *.hex build/*.bin build/*.elf build/*.map *~ build/*.lst  build/*.dis
 
 # calculate sizes for program
 size: build/$(TARGET).elf
-	$(SIZE) build/$(OBJ) $(AOBJ) $<
-	@echo ""
-	$(SIZE) --format avr --mcu $(CPU) $<
+	$(SIZE) $(OBJ) $(AOBJ) $<
 
 # print target info and generate lss
 info: build/$(TARGET).elf
@@ -73,7 +71,7 @@ info: build/$(TARGET).elf
 
 %.bin: %.elf
 	arm-none-eabi-objcopy -O binary $< $@
-	arm-none-eabi-objdump -d $< >$(TARGET).dis
+	arm-none-eabi-objdump -d $< >build/$(TARGET).dis
 
 flash: build/$(TARGET).bin
 	st-flash write $< 0x8000000
