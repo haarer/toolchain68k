@@ -25,12 +25,12 @@ case $TARGETARCHITECTURE in
 "arm-none-eabi")
     [ -d "binary_assets" ] || git clone https://github.com/haarer/binary_assets.git
     ( cd examples && [ -d "STM32F10x_StdPeriph_Lib_V3.5.0/Libraries" ] || unzip ../binary_assets/en.stsw-stm32054.zip )
-    ( cd examples/arm-none-eabi-example ; make clean && make arm-test.bin )
-    test_build_result "examples/arm-none-eabi-example/arm-test.bin" 
+    ( cd examples/arm-none-eabi-example ; make clean && make build/arm-test.bin )
+    test_build_result "examples/arm-none-eabi-example/build/arm-test.bin" 
     ( cd examples/arm-none-eabi-example ; make clean )
 
-    ( cd examples/arm-none-eabi-example-cpp ; make clean && make arm-test.bin )
-    test_build_result "examples/arm-none-eabi-example-cpp/arm-test.bin" 
+    ( cd examples/arm-none-eabi-example-cpp ; make clean && make build/arm-test.bin )
+    test_build_result "examples/arm-none-eabi-example-cpp/build/arm-test.bin" 
     ( cd examples/arm-none-eabi-example-cpp ; make clean )
   ;;
 "m68k-elf")
