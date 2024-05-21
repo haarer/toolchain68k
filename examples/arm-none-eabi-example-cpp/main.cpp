@@ -1,10 +1,11 @@
 
-/* a simple blink example */
+/* a simple blink example and serial out */
 #include <stdint.h>
 extern "C"
 {
 #include "stm32f10x.h"
 #include "system.h"
+#include "uart.h"
 }
 #include <stdio.h>
 //#include <iostream>
@@ -94,7 +95,7 @@ int main(void)
 {
 
 	static std::vector<int> vec;
-
+    uartInit(115200);
 
 	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN; // enable port c
 
@@ -102,36 +103,26 @@ int main(void)
 	pinConfg(GPIOC,13,OUTPUT_PUSH_PULL);
 
 
-
-
 	SysTick_Config(SystemCoreClock/1000);
-
-	
 
 	while (1)
 	{
 
-
 		highPin(GPIOC,13);
-
 		myDelay(100);
-
-
-		printf("enough is enough\n ");
-
 
 		lowPin(GPIOC,13);
 		myDelay(100);
 
 
-
+        //does not fit into flash
 		//std::cout << "hello" << std::endl;
 		vec.push_back(0);
 		printf("hello vector contains %d elements \n",vec.size());
-		if (vec.size() > 1000)
+		if (vec.size() > 100)
 		{
 			vec.clear();
-			
+            printf("enough is enough, resetting\n ");
 		}
 
 	}
