@@ -5,11 +5,11 @@ Build a toolchain for 68k, avr and cortex-m3 and cortex-m4 cross developement us
 
 This supports development for various m68k boards, Arduinos and STM32 Boards (STM32F411 Nucleo, 32F411EDiscovery, Blue Pill )
 
-The used toolchain versions are
- * gcc 13.2.0
- * binutils 2.42 (with the ususal avr size patch, see [avr_binutils.patch](avr_binutils.patch))
- * gdb 14.2
- * newlib 4.4.0.20231231 (with a patch to libgloss write() and read() functions, see [newlib.patch](newlib.patch))
+The used tool versions are
+ * gcc 15.2.0
+ * binutils 2.46.0 (with the ususal avr size patch, see [avr_binutils.patch](avr_binutils.patch))
+ * gdb 17.1
+ * newlib 4.6.0.20260123 (with a patch to libgloss write() and read() functions, see [newlib.patch](newlib.patch))
  * avr-libc 2.1.0
 
 The build script can build for the following target architectures
@@ -17,7 +17,7 @@ The build script can build for the following target architectures
  * avr
  * arm-none-eabi
 
-The script works on Windows 10 with MSYS2 and on Ubuntu 23.10 (mantic). It may work on other platforms but i dont run any tests.
+The script builds on github CI on Windows with MSYS2 and on Ubuntu-latest. On my machine i build it on CachyOS (arch linux) It may work on other platforms but i dont run any tests.
 
 The toolchains are packaged into archives suitable for the platformio development environment (https://platformio.org).
 The archives can be used with eclipse or with make files as well - just unpack them.
@@ -61,7 +61,7 @@ cd toolchain68k
 sh install_req_pkg_windows-latest.sh
 ```
 
-# Prepare Build Environment for Debian 8
+# Prepare Build Environment for Debian 
 First install git.
 ```
 sudo apt-get install git
