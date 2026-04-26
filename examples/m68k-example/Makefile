@@ -5,7 +5,7 @@ OBJCPY := m68k-elf-objcopy
 SIZE := m68k-elf-size
 OBJDUMP := m68k-elf-objdump
 
-CFLAGS += -m68332 -I. -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -O0 -std=gnu99 -g
+CFLAGS += -m68332 -I. -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -O0 -std=gnu99 -g -Wno-error=implicit-function-declaration
 LFLAGS_RAM += -m68332 -g -nostartfiles -Wl,--script=ram.ld,-Map=$(TARGET).map,--allow-multiple-definition
 LFLAGS_ROM += -m68332 -g -nostartfiles -Wl,--script=rom.ld,-Map=$(TARGET).map,--cref,--allow-multiple-definition
 

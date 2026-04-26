@@ -55,21 +55,20 @@ else
 fi
 
 
-
 #define package versions
-BINUTILS="binutils-2.42"
-GCCVER="gcc-13.2.0"
+BINUTILS="binutils-2.46.0"
+GCCVER="gcc-15.2.0"
 AVRLIBVER="avr-libc-2.1.0"
-NEWLIBVER="newlib-4.4.0.20231231"
-GDBVER="gdb-14.2"
+NEWLIBVER="newlib-4.6.0.20260123"
+GDBVER="gdb-17.1"
 
-MPFRVER="mpfr-4.2.1"
+MPFRVER="mpfr-4.2.2"
 GMPVER="gmp-6.3.0"
 MPCVER="mpc-1.3.1"
-ISLVER="isl-0.26"
+ISLVER="isl-0.27"
 
 #set the number of parallel makes
-MAKEJOBS=16
+MAKEJOBS=24
 
 # -------------------------------------- derived globals -----------------------------------
 ROOTDIR=`pwd`
@@ -169,7 +168,8 @@ function conf_compile_source () {
 
     if [ ! -f config.status ]; then
         log_msg "configuring $SOURCEPACKAGE"
-        ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || exit 1
+        set -o pipefail
+        ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || { log_err "configuring $SOURCEPACKAGE failed"; exit 1; }
         log_msg "configuring $SOURCEPACKAGE finished"
     else
         log_msg "configuring $SOURCEPACKAGE skipped"
@@ -178,12 +178,9 @@ function conf_compile_source () {
     if [ ! -f $DETECTFILE ]; then
 
         log_msg "building $SOURCEPACKAGE"
-        make -j $MAKEJOBS 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
-        if [ $? -eq 0 ]; then
-            log_msg "building $SOURCEPACKAGE finished"
-        else
-            log_err "building $SOURCEPACKAGE failed"
-        fi
+        set -o pipefail
+        make -j $MAKEJOBS 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || { log_err "building $SOURCEPACKAGE failed"; exit 1; }
+
 
         log_msg "install $SOURCEPACKAGE"
         install_package
@@ -197,7 +194,8 @@ function conf_compile_source () {
 
 #function to install a single package
 function install_package () {
-    make install 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log
+    set -o pipefail
+    make install 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || { log_err "installing $SOURCEPACKAGE failed"; exit 1; }
     if [ $? -eq 0 ]; then
         log_msg "install finished"
     else
@@ -249,6 +247,16 @@ function download_all_pkg () {
     prepare_source http://ftp.gnu.org/gnu/gdb $GDBVER tar.xz
 
     prepare_source https://gmplib.org/download/gmp $GMPVER tar.xz 
+
+
+    pushd $ROOTDIR/cross-toolchain/$GMPVER > /dev/null
+    if ! patch -R -p0 -f -s --dry-run <../../gmp-gcc-15.patch >/dev/null ; then
+        log_msg "patching libgmp to be compilabe on gcc15"
+        patch  -p0  <../../gmp-gcc-15.patch
+    else
+       log_msg "already patched libgmp"
+    fi
+    popd > /dev/null
 
     prepare_source https://www.mpfr.org/mpfr-current $MPFRVER tar.xz
 
@@ -441,7 +449,9 @@ conf_compile_source $MPCVER "$PREREQPATH/$MPCVER/lib/libmpc.a" "$MPCFLAGS"
 
 log_msg ">>>> build binutils"
 
-BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/" 
+BINUTILSFLAGS+=" --target=$TARGETARCHITECTURE --prefix=$HOSTINSTALLPATH/ --disable-werror" 
+
+BINUTILSFLAGS+= " "
 
 #LDFLAGS=-Wl,-rpath=$(ORIGIN)/usr/lib/binutils/avr/git,--enable-new-dtags
 
@@ -584,7 +594,7 @@ else
 
     BASE_CPPFLAGS="-pipe"
     BASE_LDFLAGS=
-    BASE_CFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections"
+    BASE_CFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections -Wno-error=implicit-function-declaration"
     BASE_CXXFLAGS_FOR_TARGET="-pipe -ffunction-sections -fdata-sections -fno-exceptions"
     export CPPFLAGS="${BASE_CPPFLAGS-} ${CPPFLAGS-}"
     export LDFLAGS="${BASE_LDFLAGS-} ${LDFLAGS-}"

@@ -13,8 +13,8 @@ OBJDUMP := m68k-elf-objdump
 #CFLAGS += -m68332 -I. $(INC) -D_REENT_SMALL -Wall -Os 
 #CXXFLAGS += -m68332 -I. $(INC) -D_REENT_SMALL -Wall -Os  -std=c++23
 
-CFLAGS += -m68332 -I. -fdata-sections -ffunction-sections -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -Os 
-CXXFLAGS += -m68332 -I. -fdata-sections -ffunction-sections -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -Os -std=c++23
+CFLAGS += -m68332 -I. -fdata-sections -ffunction-sections -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -Os -Wno-error=implicit-function-declaration
+CXXFLAGS += -m68332 -I. -fdata-sections -ffunction-sections -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -Os -std=c++23 -Wno-error=implicit-function-declaration
 
 
 #CFLAGS += -m68332 -I. -DREENTRANT_SYSCALLS_PROVIDED -D_REENT_SMALL -Wall -O2 -g
