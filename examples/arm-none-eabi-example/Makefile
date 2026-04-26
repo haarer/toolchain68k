@@ -27,6 +27,7 @@ CFLAGS += -mcpu=$(CPU) -mthumb $(INCLUDES) $(CDEFS) -Wall -Werror  -O0 -std=c99 
 
 
 LFLAGS += -O0 -Wl,--gc-sections -mcpu=$(CPU) -Tmem.ld -Tlibs.ld -Tsections.ld "-Wl,-Map,$(TARGET).map" "-Lldscripts" -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols 
+LFLAGS += -specs=nosys.specs 
 LIBS += -lm -lgcc 
 
 # determine the object files
