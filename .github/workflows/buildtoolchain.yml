@@ -31,7 +31,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          path: toolchain-${{ matrix.architecture }}-linux-gcc-13.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-15.2.0.tar.gz
           retention-days: 5    
   buildwindows:
     strategy:
@@ -65,7 +65,7 @@ jobs:
           pip3 install -U https://github.com/platformio/platformio/archive/develop.zip
           bash runtests_pio.sh  ${{ matrix.architecture }}
       - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          path: toolchain-${{ matrix.architecture }}-windows-gcc-13.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-windows-gcc-15.2.0.tar.gz
           retention-days: 5
