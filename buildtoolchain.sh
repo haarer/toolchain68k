@@ -1,30 +1,22 @@
 #!/bin/bash
-# Copyright (c) 2014-2024, A.Haarer, All rights reserved. LGPLv3
+# Copyright (c) 2014-2026, A.Haarer, All rights reserved. LGPLv3
 
 # build m68k-elf or arm-none-eabi or avr cross toolchain based on gcc
 # set the number of make jobs as appropriate for build machine
 # set the path after installation : export PATH=/opt/crosschain/bin:$PATH
 
-# tested on host platforms : msys2 64bit on windows 10, ubuntu 23.10 (mantic)
+# tested on host platforms : ubuntu latest
 
 # usage :
-#    pass operating system as first parameter "linux" or "windows"
+#    pass operating system as first parameter "linux" or "raspian"
 
 # links:
 #   http://www.mikrocontroller.net/articles/GCC_M68k
 #   https://gcc.gnu.org/install/index.html
 #   https://gcc.gnu.org/install/prerequisites.html
 #   https://gcc.gnu.org/wiki/FAQ#configure
-#   http://www.msys2.org/
 
 
-# Tips on windows:
-# please use the MSYS shell, not UCRT
-#
-# to speed up things:  chose a location without
-# - indexing (dont use windows home dir )
-# - virus scanner ( add exclusion, or stop scanner)
-#
 # chose a number of make jobs #number of cores + 1 to make use of all computer resources
 #
 # some sh versions dont like the () after functions - call the script using bash helps
@@ -40,10 +32,10 @@ TARGETARCHITECTURE=$2
 ACTION=$3
 
 # check parameters
-if [[ "$OS" = "windows" || "$OS" = "linux" || "$OS" = "raspian" ]]; then
+if [[ "$OS" = "linux" || "$OS" = "raspian" ]]; then
   echo ""
 else
-  echo "os not supported $OS ! use one of linux , windows or raspian"
+  echo "os not supported $OS ! use one of linux or raspian"
   exit 1
 fi
 
@@ -274,29 +266,8 @@ function make_pio_package () {
     #works only in bash
     PACKAGEVER=${GCCVER/#gcc-}
 
-    if [[ $OS = windows* ]]; then
-        EXECUTEABLESUFFIX=".exe"
-        echo "on windows, copy msys2 dlls"
-        for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll msys-stdc++-6.dll
-        do
-          cp  /usr/bin/$DLLFILE $HOSTINSTALLPATH/bin
-        done
-
-        cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
-        {
-            "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
-            "name": "toolchain-$TARGETARCHITECTURE-current",
-            "system": [
-                "windows",
-                "windows_amd64",
-                "windows_x86"
-            ],
-            "url": "https://github.com/haarer/toolchain68k",
-            "version": "$PACKAGEVER"
-        }
-EOFWINDOWSVARIANT
-
-    elif [[ $OS = raspian* ]]; then echo "on raspian"
+    
+    if [[ $OS = raspian* ]]; then echo "on raspian"
         cat >$HOSTINSTALLPATH/package.json <<EOFRASPIVARIANT
         {
             "description": "$GCCVER $BINUTILS $LIBCVER $GDBVER",
@@ -349,7 +320,7 @@ GDBFLAGS+=" --target=$TARGETARCHITECTURE \
  "
 
 
-conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
+conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb" "$GDBFLAGS"
 }
 
 
@@ -408,13 +379,6 @@ log_msg " start of buildscript"
 
 
 log_msg " building on OS: $OS $VER for target architecture $TARGETARCHITECTURE"
-if [[ $OS = windows ]]; then
-	EXECUTEABLESUFFIX=".exe"
-	echo "ouch.. on windows"
-else
-	echo "not on windows"
-	EXECUTEABLESUFFIX=""
-fi
 
 [ ! -d  $ROOTDIR/cross-toolchain ] &&	mkdir  $ROOTDIR/cross-toolchain
 cd $ROOTDIR/cross-toolchain
@@ -455,7 +419,7 @@ BINUTILSFLAGS+= " "
 
 #LDFLAGS=-Wl,-rpath=$(ORIGIN)/usr/lib/binutils/avr/git,--enable-new-dtags
 
-conf_compile_source $BINUTILS "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy$EXECUTEABLESUFFIX" "$BINUTILSFLAGS"
+conf_compile_source $BINUTILS "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-objcopy" "$BINUTILSFLAGS"
 
 
 #--------------------------------- GCC ------------------------------------------------
@@ -551,10 +515,6 @@ if [ "$TARGETARCHITECTURE" = "avr" ]; then
 
     LIBCFLAGS+=" --host=avr --prefix=$HOSTINSTALLPATH/ "
 
-    # configure script does not autodetect msys
-    if [ "$OS" = "windows" ]; then
-        LIBCFLAGS+=" --build=x86_64"
-    fi
 
     conf_compile_source $AVRLIBVER "$HOSTINSTALLPATH/$TARGETARCHITECTURE/lib/libc.a" "$LIBCFLAGS"
 

@@ -17,7 +17,7 @@ The build script can build for the following target architectures
  * avr
  * arm-none-eabi
 
-The script builds on github CI on Windows with MSYS2 and on Ubuntu-latest. On my machine i build it on CachyOS (arch linux) It may work on other platforms but i dont run any tests.
+The script builds on github CI on Ubuntu-latest. On my machine i build it on CachyOS (arch linux) It may work on other platforms but i dont run any tests.
 
 The toolchains are packaged into archives suitable for the platformio development environment (https://platformio.org).
 The archives can be used with eclipse or with make files as well - just unpack them.
@@ -30,36 +30,6 @@ The Platform URL to be used for platformio projects are
  * https://github.com/haarer/platform-ststm32.git
 
 There are example projects for m68k avr and arm-none-eabi
-
-# Prepare Build Environment for Windows and MSYS
-all commands are to be typed into the msys shell
-## Installation of  MSYS2 Base System and needed packages
-  * download the MSYS2 Installer from the [MSYS Home Page](http://www.msys2.org/), use the 64 Bit Version
-  * execute installer and chose the installation path according to the following criteria
-    * best performance will be on a SSD
-    * it will need approx 4 GB space
-    * exclude it from the virus scanner
-    * exclude it form the windows index service
-    * use a short path without spaces
-    * do not put it on a FAT Filesystem
-    * i use *C:\Tools\msys64*
-  * update the base system as described on the [MSYS Home Page](http://www.msys2.org/)
-    * ```pacman -Syu```
-    * ok the questions, close window when ready
-    * open MSYS Shell again(start menu, use 64bit version)
-    * ```pacman -Su```
-  * install git
-    * ```pacman -S  git```
-
-Now clone the git repository.
-```
-git clone https://github.com/haarer/toolchain68k.git
-```
-Install the required packages for msys
-```
-cd toolchain68k
-sh install_req_pkg_windows-latest.sh
-```
 
 # Prepare Build Environment for Debian 
 First install git.
