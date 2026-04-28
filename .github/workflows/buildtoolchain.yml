@@ -33,3 +33,20 @@ jobs:
         with:
           path: toolchain-${{ matrix.architecture }}-linux-gcc-15.2.0.tar.gz
           retention-days: 5    
+
+  release:
+    permissions:
+      contents: write
+    needs: buildlinux
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.tar.gz
+          generate_release_notes: true
