@@ -35,10 +35,43 @@ jobs:
           path: toolchain-${{ matrix.architecture }}-linux-gcc-15.2.0.tar.gz
           retention-days: 5    
 
+  buildalpine:
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [avr, arm-none-eabi, m68k-elf]
+    runs-on: alpine-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"        
+      - name: Install dependencies
+        run: |
+          sudo apk add bash wget git build-base m4 texinfo bison flex gawk patch expat expat-dev 
+        shell: bash
+      - name: Build toolchain
+        run: |
+          bash buildtoolchain.sh linux  ${{ matrix.architecture }}
+      - name: Build example with toolchain
+        run: |
+          bash runtests.sh  ${{ matrix.architecture }}
+      - name: Build platformio examples with toolchain
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          bash runtests_pio.sh  ${{ matrix.architecture }}
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: toolchain-${{ matrix.architecture }}
+          path: toolchain-${{ matrix.architecture }}-alpine-gcc-15.2.0.tar.gz
+          retention-days: 5    
+
+
   release:
     permissions:
       contents: write
-    needs: buildlinux
+    needs: [ buildalpine, buildlinux ]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
