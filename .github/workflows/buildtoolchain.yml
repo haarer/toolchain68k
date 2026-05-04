@@ -31,7 +31,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
-          name: toolchain-${{ matrix.architecture }}
+          name: linux-${{ matrix.architecture }}
           path: toolchain-${{ matrix.architecture }}-linux-gcc-15.2.0.tar.gz
           retention-days: 5    
 
@@ -63,7 +63,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
-          name: toolchain-${{ matrix.architecture }}
+          name: alpine-${{ matrix.architecture }}
           path: toolchain-${{ matrix.architecture }}-alpine-gcc-15.2.0.tar.gz
           retention-days: 5    
 
