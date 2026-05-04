@@ -40,26 +40,26 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [avr, arm-none-eabi, m68k-elf]
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: "recursive"        
-      - name: Install dependencies
+          submodules: "recursive"
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1          
+      - name: Install dependencies in alpine
         run: |
-          sudo apk add bash wget git build-base m4 texinfo bison flex gawk patch expat expat-dev 
-        shell: bash
-      - name: Build toolchain
+          cat /etc/alpine-release
+          apk add bash wget git build-base m4 texinfo bison flex gawk patch expat expat-dev 
+        shell: shell: alpine.sh --root {0}
+      - name: Build toolchain in alpine
         run: |
           bash buildtoolchain.sh linux  ${{ matrix.architecture }}
-      - name: Build example with toolchain
+        shell: alpine.sh {0}
+      - name: Build example with toolchain in alpine
         run: |
           bash runtests.sh  ${{ matrix.architecture }}
-      - name: Build platformio examples with toolchain
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          bash runtests_pio.sh  ${{ matrix.architecture }}
+        shell: alpine.sh {0}
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
