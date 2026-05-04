@@ -32,7 +32,7 @@ TARGETARCHITECTURE=$2
 ACTION=$3
 
 # check parameters
-if [[ "$OS" = "linux" || "$OS" = "raspian" ]]; then
+if [[ "$OS" = "linux" || "$OS" = "alpine" ||  "$OS" = "raspian" ]]; then
   echo ""
 else
   echo "os not supported $OS ! use one of linux or raspian"
