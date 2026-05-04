@@ -51,7 +51,7 @@ jobs:
         run: |
           cat /etc/alpine-release
           apk add bash wget git build-base m4 texinfo bison flex gawk patch expat expat-dev 
-        shell: shell: alpine.sh --root {0}
+        shell: alpine.sh --root {0}
       - name: Build toolchain in alpine
         run: |
           bash buildtoolchain.sh linux  ${{ matrix.architecture }}
