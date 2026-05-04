@@ -54,7 +54,7 @@ jobs:
         shell: alpine.sh --root {0}
       - name: Build toolchain in alpine
         run: |
-          bash buildtoolchain.sh linux  ${{ matrix.architecture }}
+          bash buildtoolchain.sh alpine  ${{ matrix.architecture }}
         shell: alpine.sh {0}
       - name: Build example with toolchain in alpine
         run: |
