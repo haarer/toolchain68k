@@ -352,6 +352,26 @@ GDBFLAGS+=" --target=$TARGETARCHITECTURE \
 conf_compile_source $GDBVER "$HOSTINSTALLPATH/bin/$TARGETARCHITECTURE-gdb$EXECUTEABLESUFFIX" "$GDBFLAGS"
 }
 
+function install_toolchain () {
+#---------------------------------------------------------------------------------
+#install toolchain to /opt
+
+if [ ! -d "$HOSTINSTALLPATH" ]; then
+    log_err "Error: $HOSTINSTALLPATH not found. Build the toolchain first."
+    exit 1
+fi
+
+log_msg ">>>> installing toolchain to /opt"
+
+# Request sudo and copy toolchain
+sudo mkdir -p /opt
+sudo cp -r "$HOSTINSTALLPATH" "/opt/$TARGETARCHITECTURE-$(basename $HOSTINSTALLPATH)" || { log_err "installation failed"; exit 1; }
+
+INSTALL_PATH="/opt/$TARGETARCHITECTURE-$(basename $HOSTINSTALLPATH)"
+log_msg "Toolchain installed successfully at $INSTALL_PATH"
+log_msg "To use it, add to PATH: export PATH=$INSTALL_PATH/bin:\$PATH"
+}
+
 
 if [ "$ACTION" = "purge" ]; then
     rm -rf $HOSTINSTALLPATH
@@ -378,6 +398,10 @@ if [ "$ACTION" = "build_gdb" ]; then
     exit 0
 fi
 
+if [ "$ACTION" = "install" ]; then
+    install_toolchain
+    exit 0
+fi
 
 if [ "$ACTION" = "package" ]; then
     make_pio_package
