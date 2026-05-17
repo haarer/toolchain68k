@@ -365,9 +365,9 @@ log_msg ">>>> installing toolchain to /opt"
 
 # Request sudo and copy toolchain
 sudo mkdir -p /opt
-sudo cp -r "$HOSTINSTALLPATH" "/opt/$TARGETARCHITECTURE-$(basename $HOSTINSTALLPATH)" || { log_err "installation failed"; exit 1; }
+sudo cp -r "$HOSTINSTALLPATH" "/opt/$(basename $HOSTINSTALLPATH)" || { log_err "installation failed"; exit 1; }
 
-INSTALL_PATH="/opt/$TARGETARCHITECTURE-$(basename $HOSTINSTALLPATH)"
+INSTALL_PATH="/opt/$(basename $HOSTINSTALLPATH)"
 log_msg "Toolchain installed successfully at $INSTALL_PATH"
 log_msg "To use it, add to PATH: export PATH=$INSTALL_PATH/bin:\$PATH"
 }
