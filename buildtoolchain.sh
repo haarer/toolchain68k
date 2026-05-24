@@ -380,18 +380,14 @@ if [ "$ACTION" = "package" ]; then
 fi
 
 export CFLAGS='-O2 -pipe'
-export CXXFLAGS='-O2 -pipe'
+export CXXFLAGS='-O2 -pipe -std=gnu++17'
 export LDFLAGS='-s'
 export DEBUG_FLAGS=''
 
 
 if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
-        MACHINEFLAGS="--with-cpu=cortex-m4 --with-cpu=cortex-m3 --with-fpu=fpv4-sp-d16 --with-float=hard --with-float=softfp 
--with-float=soft --with-mode=thumb"
+	MACHINEFLAGS="--with-multilib-list=rmprofile"
 	GCCFLAGS=$MACHINEFLAGS
-	BINUTILSFLAGS=$MACHINEFLAGS
-	LIBCFLAGS=$MACHINEFLAGS
-	GDBFLAGS=$MACHINEFLAGS
 fi
 
 
