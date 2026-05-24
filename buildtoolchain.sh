@@ -60,7 +60,7 @@ MPCVER="mpc-1.3.1"
 ISLVER="isl-0.27"
 
 #set the number of parallel makes
-MAKEJOBS=24
+MAKEJOBS=$(nproc 2>/dev/null || echo 4)
 
 # -------------------------------------- derived globals -----------------------------------
 ROOTDIR=`pwd`
@@ -98,17 +98,17 @@ function prepare_source () {
     if [ "$ARCHTYPE" = "git" ]; then
         if [ ! -f $SOURCENAME.$ARCHTYPE ]; then
             log_msg " cloning $BASEURL"
-            git clone $BASEURL
+            git clone $BASEURL || { log_err "cloning $BASEURL failed"; exit 1; }
         else
             log_msg " pulling update from $BASEURL"
             cd $SOURCENAME
-            git pull
+            git pull || { log_err "pulling $SOURCENAME failed"; exit 1; }
         fi
     else
         if [ ! -f $ROOTDIR/src-archives/$SOURCENAME.$ARCHTYPE ]; then
             log_msg " downloading $SOURCENAME"
             pushd $ROOTDIR/src-archives > /dev/null
-            wget $BASEURL/$SOURCENAME.$ARCHTYPE
+            wget $BASEURL/$SOURCENAME.$ARCHTYPE || { log_err "downloading $SOURCENAME failed"; popd > /dev/null; exit 1; }
             popd > /dev/null
             log_msg " downloading $SOURCENAME finished"
         else
@@ -591,12 +591,12 @@ log_msg ">>>> build gcc stage 2"
 
 
 
-GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
+GCCFLAGS=" $MACHINEFLAGS --target=$TARGETARCHITECTURE  \
             --prefix=$HOSTINSTALLPATH/    \
             --libexecdir=$HOSTINSTALLPATH/lib \
             --enable-languages=c,c++      \
             --enable-lto                  \
-			--disable-libstdcxx-verbose \
+            --disable-libstdcxx-verbose   \
             --with-gmp=$PREREQPATH/$GMPVER\
             --with-mpfr=$PREREQPATH/$MPFRVER\
             --with-isl=$PREREQPATH/$ISLVER\
@@ -615,12 +615,11 @@ GCCFLAGS+=" --target=$TARGETARCHITECTURE  \
             --with-gnu-as                 \
             --with-gnu-ld                 \
             --disable-checking            \
-			--with-headers=yes            \
-            --with-sysroot=$HOSTINSTALLPATH/$TARGETARCHITECTURE "
+            --with-headers=yes            \
+            --with-sysroot=$HOSTINSTALLPATH/$TARGETARCHITECTURE"
 
 SOURCEPACKAGE=$GCCVER
 CONFIGURESTRING=$GCCFLAGS
-
 
 [ ! -d $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj2 ] && mkdir $ROOTDIR/cross-toolchain/$SOURCEPACKAGE/cross-chain-$TARGETARCHITECTURE-obj2
 
