@@ -346,7 +346,7 @@ log_msg "To use it, add to PATH: export PATH=$INSTALL_PATH/bin:\$PATH"
 
 if [ "$ACTION" = "purge" ]; then
     rm -rf $HOSTINSTALLPATH
-    rm $ROOTDIR/*.log
+    rm -f $ROOTDIR/*.log $LOGFILE
     purge_pkg $BINUTILS
     purge_pkg $GCCVER
     purge_pkg $AVRLIBVER
@@ -381,7 +381,7 @@ fi
 
 set -o pipefail
 export CFLAGS='-O2 -pipe'
-export CXXFLAGS='-O2 -pipe -std=gnu++17'
+export CXXFLAGS='-O2 -pipe -fno-char8_t'
 export LDFLAGS='-s'
 export DEBUG_FLAGS=''
 
@@ -497,7 +497,7 @@ log_msg "CCS cfgstring $CONFIGURESTRING"
 
 if [ ! -f config.status ]; then
     log_msg "configuring $SOURCEPACKAGE"
-    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || exit 1
+    ../configure $CONFIGURESTRING 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-conf.log || { log_err "configuring $SOURCEPACKAGE failed"; exit 1; }
     log_msg "configuring $SOURCEPACKAGE finished"
 else
     log_msg "configuring $SOURCEPACKAGE skipped"
@@ -505,16 +505,17 @@ fi
 
 if [ ! -f gcc/include/limits.h ]; then
     log_msg "building $SOURCEPACKAGE"
-    make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
+    make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || { log_err "building $SOURCEPACKAGE failed"; exit 1; }
     log_msg "building $SOURCEPACKAGE finished"
 else
     log_msg "building $SOURCEPACKAGE skipped"
 fi
 
 # to do : extract number from gccver
-if [ ! -f $HOSTINSTALLPATH/lib/gcc/$TARGETARCHITECTURE/13.2.0/include/limits.h ]; then
+GCC_SHORTVER=$(echo $GCCVER | sed 's/gcc-//')
+if [ ! -f $HOSTINSTALLPATH/lib/gcc/$TARGETARCHITECTURE/$GCC_SHORTVER/include/limits.h ]; then
     log_msg "install $SOURCEPACKAGE"
-    make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || exit 1
+    make install-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-install.log || { log_err "install $SOURCEPACKAGE failed"; exit 1; }
     log_msg "install $SOURCEPACKAGE finished"
 else
     log_msg "install $SOURCEPACKAGE skipped"
