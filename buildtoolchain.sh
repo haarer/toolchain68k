@@ -386,7 +386,7 @@ export DEBUG_FLAGS=''
 
 
 if [ "$TARGETARCHITECTURE" = "arm-none-eabi" ]; then
-	MACHINEFLAGS="--with-multilib-list=rmprofile"
+	MACHINEFLAGS="--with-multilib-list=rmprofile,aprofile"
 	GCCFLAGS=$MACHINEFLAGS
 fi
 

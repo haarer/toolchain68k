@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.architecture }}
-          path: toolchain-${{ matrix.architecture }}-linux-gcc-15.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-*.tar.gz
           retention-days: 5    
 
   buildalpine:
@@ -64,7 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: alpine-${{ matrix.architecture }}
-          path: toolchain-${{ matrix.architecture }}-alpine-gcc-15.2.0.tar.gz
+          path: toolchain-${{ matrix.architecture }}-alpine-gcc-*.tar.gz
           retention-days: 5    
 
 
