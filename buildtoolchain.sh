@@ -49,14 +49,14 @@ fi
 
 #define package versions
 BINUTILS="binutils-2.46.0"
-GCCVER="gcc-15.2.0"
+GCCVER="gcc-16.1.0"
 AVRLIBVER="avr-libc-2.1.0"
 NEWLIBVER="newlib-4.6.0.20260123"
-GDBVER="gdb-17.1"
+GDBVER="gdb-17.2"
 
 MPFRVER="mpfr-4.2.2"
 GMPVER="gmp-6.3.0"
-MPCVER="mpc-1.3.1"
+MPCVER="mpc-1.4.0"
 ISLVER="isl-0.27"
 
 #set the number of parallel makes
@@ -252,12 +252,11 @@ function download_all_pkg () {
 
     prepare_source https://www.mpfr.org/mpfr-current $MPFRVER tar.xz
 
-    prepare_source https://www.multiprecision.org/downloads $MPCVER tar.gz
+    prepare_source https://www.multiprecision.org/downloads $MPCVER tar.xz
 
     prepare_source https://libisl.sourceforge.io $ISLVER tar.bz2
 
 }
-
 
 #---------------------------------------------------------------------------------
 #build pio package
