@@ -379,6 +379,7 @@ if [ "$ACTION" = "package" ]; then
     exit 0
 fi
 
+set -o pipefail
 export CFLAGS='-O2 -pipe'
 export CXXFLAGS='-O2 -pipe -std=gnu++17'
 export LDFLAGS='-s'
@@ -505,11 +506,7 @@ fi
 if [ ! -f gcc/include/limits.h ]; then
     log_msg "building $SOURCEPACKAGE"
     make -j $MAKEJOBS all-gcc 2>&1 | tee -a $ROOTDIR/$SOURCEPACKAGE-$TARGETARCHITECTURE-build.log || exit 1
-    if [ $? -eq 0 ]; then
-        log_msg "building $SOURCEPACKAGE finished"
-    else
-        log_err "building $SOURCEPACKAGE failed"
-    fi
+    log_msg "building $SOURCEPACKAGE finished"
 else
     log_msg "building $SOURCEPACKAGE skipped"
 fi
