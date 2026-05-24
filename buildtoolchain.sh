@@ -40,7 +40,7 @@ TARGETARCHITECTURE=$2
 ACTION=$3
 
 # check parameters
-if [[ "$OS" = "windows" || "$OS" = "linux" || "$OS" = "raspian" ]]; then
+if [[ "$OS" = "windows" || "$OS" = "linux" || "$OS" = "alpine" || "$OS" = "raspian" ]]; then
   echo ""
 else
   echo "os not supported $OS ! use one of linux , windows or raspian"
@@ -54,6 +54,13 @@ else
   exit 1
 fi
 
+# Detect release tag from CI (GitHub Actions tag push) or local git
+RELEASE_TAG=""
+if [ "${GITHUB_REF_TYPE:-}" = "tag" ] && [ -n "${GITHUB_REF_NAME:-}" ]; then
+    RELEASE_TAG="$GITHUB_REF_NAME"
+elif git describe --exact-match --tags HEAD &>/dev/null 2>&1; then
+    RELEASE_TAG=$(git describe --exact-match --tags HEAD 2>/dev/null)
+fi
 
 
 #define package versions
@@ -284,7 +291,8 @@ function make_pio_package () {
                 "windows_x86"
             ],
             "url": "https://github.com/haarer/toolchain68k",
-            "version": "$PACKAGEVER"
+            "version": "$PACKAGEVER",
+            "tag": "$RELEASE_TAG"
         }
 EOFWINDOWSVARIANT
 
@@ -299,7 +307,8 @@ EOFWINDOWSVARIANT
                 "linux_armv8l"
             ],
             "url": "https://github.com/haarer/toolchain68k",
-            "version": "$PACKAGEVER"
+            "version": "$PACKAGEVER",
+            "tag": "$RELEASE_TAG"
         }
 EOFRASPIVARIANT
 
@@ -313,7 +322,8 @@ EOFRASPIVARIANT
                 "linux_x86_64"
             ],
             "url": "https://github.com/haarer/toolchain68k",
-            "version": "$PACKAGEVER"
+            "version": "$PACKAGEVER",
+            "tag": "$RELEASE_TAG"
         }
 EOFLINUXVARIANT
 

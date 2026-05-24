@@ -1,6 +1,6 @@
-name: Examples
+name: Build Toolchains
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   buildlinux:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: "recursive"        
+          submodules: "recursive"
       - name: Install dependencies
         run: |
           sudo apt-get install wget bzip2 xz-utils unzip git make tar flex bison diffutils texinfo gcc g++ libexpat-dev
@@ -28,44 +28,59 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
           bash runtests_pio.sh  ${{ matrix.architecture }}
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: toolchain-${{ matrix.architecture }}-linux-gcc-13.2.0.tar.gz
-          retention-days: 5    
-  buildwindows:
+          name: linux-${{ matrix.architecture }}
+          path: toolchain-${{ matrix.architecture }}-linux-gcc-*.tar.gz
+          retention-days: 5
+
+  buildalpine:
     strategy:
       fail-fast: false
       matrix:
         architecture: [avr, arm-none-eabi, m68k-elf]
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: "recursive"
-      - name: Install prepare msys
-        uses: msys2/setup-msys2@v2.22.0
-        with:
-          msystem: MINGW64
-          install: git mingw-w64-x86_64-toolchain make wget bzip2 tar flex bison unzip diffutils texinfo autoconf patch libexpat-devel
-          update: true
-      - name: Build toolchain
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1
+      - name: Install dependencies in alpine
         run: |
-          bash buildtoolchain.sh windows  ${{ matrix.architecture }}
-      - name: Build examples with toolchain
+          cat /etc/alpine-release
+          apk add bash wget git build-base m4 texinfo bison flex gawk patch expat expat-dev
+        shell: alpine.sh --root {0}
+      - name: Build toolchain in alpine
+        run: |
+          bash buildtoolchain.sh alpine  ${{ matrix.architecture }}
+        shell: alpine.sh {0}
+      - name: Build example with toolchain in alpine
         run: |
           bash runtests.sh  ${{ matrix.architecture }}
-      - name: Build platformio examples with toolchain
-        run: |
-          pacman -S --needed --noconfirm  python3-pip
-          pip3 install --upgrade pip
-          pip3 install -U https://github.com/platformio/platformio/archive/develop.zip
-          bash runtests_pio.sh  ${{ matrix.architecture }}
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
+        shell: alpine.sh {0}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: toolchain-${{ matrix.architecture }}-windows-gcc-13.2.0.tar.gz
+          name: alpine-${{ matrix.architecture }}
+          path: toolchain-${{ matrix.architecture }}-alpine-gcc-*.tar.gz
           retention-days: 5
+
+  release:
+    permissions:
+      contents: write
+    needs: [buildalpine, buildlinux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.tar.gz
+          body_path: releasenotes/RELEASE_NOTES-${{ github.ref_name }}.md
+          body: Automated build for ${{ github.ref_name }}
