@@ -1,6 +1,10 @@
 name: Examples
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
 
 jobs:
   buildlinux:
