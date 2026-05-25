@@ -17,7 +17,7 @@ The build script can build for the following target architectures
  * avr
  * arm-none-eabi
 
-The script builds on github CI on Ubuntu-latest. On my machine i build it on CachyOS (arch linux) It may work on other platforms but i dont run any tests.
+The script builds on GitHub CI on tag pushes for Linux and Alpine. It can also be triggered manually via the GitHub Actions web UI (workflow_dispatch). On my machine i build it on CachyOS (arch linux). It may work on other platforms but i dont run any tests.
 
 The toolchains are packaged into archives suitable for the platformio development environment (https://platformio.org).
 The archives can be used with eclipse or with make files as well - just unpack them.
@@ -30,6 +30,12 @@ The Platform URL to be used for platformio projects are
  * https://github.com/haarer/platform-ststm32.git
 
 There are example projects for m68k avr and arm-none-eabi
+
+# Releases
+
+Prebuilt toolchain archives are published on the [GitHub Releases page](https://github.com/haarer/toolchain68k/releases). Each release is triggered by pushing a tag and includes builds for Linux and Alpine on all three architectures (m68k-elf, avr, arm-none-eabi).
+
+Release notes are maintained in the [`releasenotes/`](releasenotes/) directory as `RELEASE_NOTES-<tagname>.md`.
 
 # Prepare Build Environment for Debian 
 First install git.
