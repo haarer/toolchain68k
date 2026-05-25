@@ -16,7 +16,7 @@
 - Dropped: Raspberry Pi (armv6l/armv7l/armv8l) builds
 
 ### CI/CD
-- GitHub Actions CI for automated builds on push and PR
+- GitHub Actions CI for automated builds on tag pushes and manual dispatch
 - GitHub Releases automation via `softprops/action-gh-release@v2`
 - Cross-platform artifacts: Linux (glibc), Alpine (musl), Windows (MSYS2)
 

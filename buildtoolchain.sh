@@ -275,10 +275,27 @@ function make_pio_package () {
 
     if [[ $OS = windows* ]]; then
         EXECUTEABLESUFFIX=".exe"
-        echo "on windows, copy msys2 dlls"
-        for DLLFILE in msys-gcc_s-seh-1.dll msys-2.0.dll msys-stdc++-6.dll
-        do
-          cp  /usr/bin/$DLLFILE $HOSTINSTALLPATH/bin
+        echo "on windows, copy needed dlls"
+
+        copy_deps() {
+            local file="$1"
+            local dll
+            local src
+            for dll in $(x86_64-w64-mingw32-objdump -p "$file" 2>/dev/null | grep "DLL Name" | awk '{print $3}'); do
+                if [ -f "$HOSTINSTALLPATH/bin/$dll" ]; then continue; fi
+                src=$(find "$MINGW_PREFIX/bin" -maxdepth 1 -name "$dll" 2>/dev/null | head -1)
+                if [ -z "$src" ]; then src=$(find /usr/bin -maxdepth 1 -name "$dll" 2>/dev/null | head -1); fi
+                if [ -n "$src" ]; then
+                    cp "$src" "$HOSTINSTALLPATH/bin/"
+                    echo "  bundled $dll"
+                    # recurse in case the DLL has its own dependencies
+                    copy_deps "$src"
+                fi
+            done
+        }
+
+        for f in "$HOSTINSTALLPATH/bin/"*.exe; do
+            [ -f "$f" ] && copy_deps "$f"
         done
 
         cat >$HOSTINSTALLPATH/package.json <<EOFWINDOWSVARIANT
